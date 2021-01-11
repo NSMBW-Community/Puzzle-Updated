@@ -63,8 +63,11 @@ def module_path():
 
             return os.path.join(os.path.dirname(macos), 'Resources')
 
+        else:  # Windows, Linux
+            return os.path.dirname(sys.executable)
+
     if __name__ == '__main__':
-        return os.path.dirname(os.path.abspath(sys.argv[0]))
+        return os.path.dirname(os.path.abspath(__file__))
 
     return None
 
