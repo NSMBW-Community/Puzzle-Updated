@@ -2208,15 +2208,15 @@ def RGB4A3Encode(tex):
 
                     pixel = tex.pixel(xpixel, ypixel)
 
-                    a = pixel >> 24
-                    r = (pixel >> 16) & 0xFF
-                    g = (pixel >> 8) & 0xFF
-                    b = pixel & 0xFF
-
                     if pixel in colorCache:
                         rgba = colorCache[pixel]
 
                     else:
+
+                        a = pixel >> 24
+                        r = (pixel >> 16) & 0xFF
+                        g = (pixel >> 8) & 0xFF
+                        b = pixel & 0xFF
 
                         # See encodingTests.py for verification that these
                         # channel conversion formulas are 100% correct
@@ -2244,7 +2244,7 @@ def RGB4A3Encode(tex):
                             # 1rrrrrgggggbbbbb
                             rgba = blue | (green << 5) | (red << 10) | (0x8000)
 
-                            colorCache[pixel] = rgba
+                        colorCache[pixel] = rgba
 
                     shorts.append(rgba)
 
