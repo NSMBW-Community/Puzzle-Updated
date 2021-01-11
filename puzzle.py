@@ -2250,7 +2250,7 @@ def RGB4A3Encode(tex):
                         shorts.append(rgba)
                         shorts.append(rgba)
                         break
-                if xtile % 32 == 0 or xtile % 32 == 28:
+                if ytile % 32 == 0 or ytile % 32 == 28:
                     shorts.extend(shorts[-4:])
                     shorts.extend(shorts[-8:])
                     break
