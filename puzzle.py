@@ -728,6 +728,7 @@ class displayWidget(QtWidgets.QListView):
         self.setBackgroundRole(QtGui.QPalette.BrightText)
         self.setMouseTracking(True)
         self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.setItemDelegate(self.TileItemDelegate())
 
