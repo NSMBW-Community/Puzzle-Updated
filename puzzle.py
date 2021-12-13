@@ -1380,6 +1380,11 @@ class tileOverlord(QtWidgets.QWidget):
                 crow += 1
                 ctile = 0
 
+            object.upperslope = [0, 0]
+            object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
+
         if listindex == 1: # Stretch Center
 
             if object.width < 3 and object.height < 3:
@@ -1412,6 +1417,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
         if listindex == 2: # Stretch X
 
@@ -1437,6 +1444,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
         if listindex == 3: # Stretch Y
 
@@ -1462,6 +1471,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
         if listindex == 4: # Repeat Bottom
 
@@ -1485,6 +1496,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
         if listindex == 5: # Repeat Top
 
@@ -1508,6 +1521,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
         if listindex == 6: # Repeat Left
 
@@ -1531,6 +1546,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
         if listindex == 7: # Repeat Right
 
@@ -1554,6 +1571,8 @@ class tileOverlord(QtWidgets.QWidget):
 
             object.upperslope = [0, 0]
             object.lowerslope = [0, 0]
+            self.tiles.slope = 0
+            self.tiles.update()
 
 
         if listindex == 8: # Upward Slope
@@ -1569,7 +1588,6 @@ class tileOverlord(QtWidgets.QWidget):
             object.upperslope = [0x90, 1]
             object.lowerslope = [0x84, object.height - 1]
             self.tiles.slope = 1
-
             self.tiles.update()
 
         if listindex == 9: # Downward Slope
@@ -1585,7 +1603,6 @@ class tileOverlord(QtWidgets.QWidget):
             object.upperslope = [0x91, 1]
             object.lowerslope = [0x84, object.height - 1]
             self.tiles.slope = 1
-
             self.tiles.update()
 
         if listindex == 10: # Upward Reverse Slope
@@ -1601,7 +1618,6 @@ class tileOverlord(QtWidgets.QWidget):
             object.upperslope = [0x92, object.height - 1]
             object.lowerslope = [0x84, 1]
             self.tiles.slope = 0-(object.height-1)
-
             self.tiles.update()
 
         if listindex == 11: # Downward Reverse Slope
@@ -1617,7 +1633,6 @@ class tileOverlord(QtWidgets.QWidget):
             object.upperslope = [0x93, object.height - 1]
             object.lowerslope = [0x84, 1]
             self.tiles.slope = 0-(object.height-1)
-
             self.tiles.update()
 
 
