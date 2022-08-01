@@ -688,7 +688,7 @@ def SetupObjectModel(self, objects, tiles):
         for i in range(len(object.tiles)):
             for tile in object.tiles[i]:
                 if (Tileset.slot == 0) or ((tile[2] & 3) != 0):
-                    painter.drawPixmap(Xoffset, Yoffset, tiles[tile[1]].image)
+                    painter.drawImage(Xoffset, Yoffset, tiles[tile[1]].image)
                 Xoffset += 24
             Xoffset = 0
             Yoffset += 24
@@ -1260,7 +1260,7 @@ class tileOverlord(QtWidgets.QWidget):
         pix = QtGui.QPixmap(24, 24)
         pix.fill(Qt.transparent)
         painter = QtGui.QPainter(pix)
-        painter.drawPixmap(0, 0, Tileset.tiles[0].image)
+        painter.drawImage(0, 0, Tileset.tiles[0].image)
         painter.end()
 
         count = len(Tileset.objects)
@@ -1676,11 +1676,11 @@ class tileWidget(QtWidgets.QWidget):
         self.size[0] += 1
         self.setMinimumSize(self.size[0]*24, self.size[1]*24)
 
-        pix = QtGui.QPixmap(24,24)
-        pix.fill(QtGui.QColor(0,0,0,0))
+        img = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
+        img.fill(QtCore.Qt.transparent)
 
         for y in range(self.size[1]):
-            self.tiles.insert(((y+1) * self.size[0]) -1, [self.size[0]-1, y, pix])
+            self.tiles.insert(((y+1) * self.size[0]) -1, [self.size[0]-1, y, img])
 
 
         curObj = Tileset.objects[self.object]
@@ -1728,11 +1728,11 @@ class tileWidget(QtWidgets.QWidget):
         self.size[1] += 1
         self.setMinimumSize(self.size[0]*24, self.size[1]*24)
 
-        pix = QtGui.QPixmap(24,24)
-        pix.fill(QtGui.QColor(0,0,0,0))
+        img = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
+        img.fill(QtCore.Qt.transparent)
 
         for x in range(self.size[0]):
-            self.tiles.append([x, self.size[1]-1, pix])
+            self.tiles.append([x, self.size[1]-1, img])
 
         curObj = Tileset.objects[self.object]
         curObj.height += 1
@@ -1786,9 +1786,9 @@ class tileWidget(QtWidgets.QWidget):
                 if (Tileset.slot == 0) or ((tile[2] & 3) != 0):
                     self.tiles.append([x, y, Tileset.tiles[tile[1]].image])
                 else:
-                    pix = QtGui.QPixmap(24,24)
-                    pix.fill(QtGui.QColor(0,0,0,0))
-                    self.tiles.append([x, y, pix])
+                    img = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
+                    img.fill(QtCore.Qt.transparent)
+                    self.tiles.append([x, y, img])
                 x += 1
             y += 1
             x = 0
@@ -1875,7 +1875,7 @@ class tileWidget(QtWidgets.QWidget):
         Yoffset = 0
 
         for tile in self.tiles:
-            painter.drawPixmap(tile[0]*24, tile[1]*24, tile[2])
+            painter.drawImage(tile[0]*24, tile[1]*24, tile[2])
 
         painter.end()
 
@@ -2019,7 +2019,7 @@ class tileWidget(QtWidgets.QWidget):
         painter.fillRect(upperLeftX, upperLeftY, self.size[0] * 24, self.size[1]*24, QtGui.QColor(205, 205, 255))
 
         for x, y, pix in self.tiles:
-            painter.drawPixmap(upperLeftX + (x * 24), upperLeftY + (y * 24), pix)
+            painter.drawImage(upperLeftX + (x * 24), upperLeftY + (y * 24), pix)
 
         if not self.slope == 0:
             pen = QtGui.QPen()
@@ -2212,6 +2212,8 @@ def RGB4A3Decode(tex, useAlpha=True):
 
 
 def RGB4A3Encode(tex):
+    assert len(tex) == (1024 * 256 * 4)
+
     shorts = []
     colorCache = {}
     for ytile in range(0, 256, 4):
@@ -2219,46 +2221,40 @@ def RGB4A3Encode(tex):
             for ypixel in range(ytile, ytile + 4):
                 for xpixel in range(xtile, xtile + 4):
 
-                    if xpixel >= 1024 or ypixel >= 256:
-                        continue
-
-                    pixel = tex.pixel(xpixel, ypixel)
+                    pixel = tex[ypixel * 4096 + xpixel * 4 : ypixel * 4096 + (xpixel + 1) * 4]
 
                     if pixel in colorCache:
                         rgba = colorCache[pixel]
 
                     else:
-
-                        a = pixel >> 24
-                        r = (pixel >> 16) & 0xFF
-                        g = (pixel >> 8) & 0xFF
-                        b = pixel & 0xFF
+                        b, g, r, a = pixel
 
                         # See encodingTests.py for verification that these
                         # channel conversion formulas are 100% correct
 
-                        # It'd be nice if we could do
+                        # Note: we can't do
                         # if a < 19:
                         #     rgba = 0
-                        # for speed, but that defeats the purpose of the
-                        # "Toggle Alpha" setting.
+                        # for speed, because that causes an issue with
+                        # texture filtering that results in graphics
+                        # having faint black borders in-game
 
-                        if a < 238: # RGB4A3
-                            alpha = ((a + 18) << 1) // 73
-                            red = (r + 8) // 17
-                            green = (g + 8) // 17
-                            blue = (b + 8) // 17
+                        if a < 238:  # RGB4A3
+                            a = ((a + 18) << 1) // 73
+                            r = (r + 8) // 17
+                            g = (g + 8) // 17
+                            b = (b + 8) // 17
 
                             # 0aaarrrrggggbbbb
-                            rgba = blue | (green << 4) | (red << 8) | (alpha << 12)
+                            rgba = (a << 12) | (r << 8) | (g << 4) | b
 
-                        else: # RGB555
-                            red = ((r + 4) << 2) // 33
-                            green = ((g + 4) << 2) // 33
-                            blue = ((b + 4) << 2) // 33
+                        else:  # RGB555
+                            r = ((r + 4) << 2) // 33
+                            g = ((g + 4) << 2) // 33
+                            b = ((b + 4) << 2) // 33
 
                             # 1rrrrrgggggbbbbb
-                            rgba = blue | (green << 5) | (red << 10) | (0x8000)
+                            rgba = 0x8000 | (r << 10) | (g << 5) | b
 
                         colorCache[pixel] = rgba
 
@@ -2275,6 +2271,334 @@ def RGB4A3Encode(tex):
                     break
 
     return struct.pack('>262144H', *shorts)
+
+
+#############################################################################################
+######################### Function to fix black borders around tiles ########################
+
+
+def color_transparent_pixels_around_edges_24_24(data: bytearray) -> None:
+    """
+    THIS FUNCTION IS AUTO-GENERATED SOURCE CODE!
+    See make_color_transparent_pixels_around_edges.py.
+
+    Find fully-transparent pixels that border non-fully-transparent
+    pixels, and set their RGB channels to the average of those of their
+    neighboring non-fully-transparent pixels. This solves the
+    longstanding "black outlines around tile edges" bug.
+
+    "data" should be BGRA8 bytes for an image of size 24x24.
+    """
+    if len(data) != 0x900:
+        raise ValueError(f'expected 0x900 bytes, got {len(data):#x}')
+
+    # Redefine some globals as locals for faster lookups
+    sum_loc, len_loc, range_loc = sum, len, range
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Top-left corner
+
+    if not data[0x3]:
+        neighbors = []
+
+        # (x + 1, y)
+        if data[0x7]:
+            neighbors.append(data[0x4 : 0x7])
+
+        # (x + 1, y + 1)
+        if data[0x67]:
+            neighbors.append(data[0x64 : 0x67])
+
+        # (x, y + 1)
+        if data[0x63]:
+            neighbors.append(data[0x60 : 0x63])
+
+        if neighbors:
+            ln = len_loc(neighbors)
+            data[0x0] = sum_loc(n[0] for n in neighbors) // ln
+            data[0x1] = sum_loc(n[1] for n in neighbors) // ln
+            data[0x2] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Top-right corner
+
+    if not data[0x5f]:
+        neighbors = []
+
+        # (x, y + 1)
+        if data[0xbf]:
+            neighbors.append(data[0xbc : 0xbf])
+
+        # (x - 1, y + 1)
+        if data[0xbb]:
+            neighbors.append(data[0xb8 : 0xbb])
+
+        # (x - 1, y)
+        if data[0x5b]:
+            neighbors.append(data[0x58 : 0x5b])
+
+        if neighbors:
+            ln = len_loc(neighbors)
+            data[0x5c] = sum_loc(n[0] for n in neighbors) // ln
+            data[0x5d] = sum_loc(n[1] for n in neighbors) // ln
+            data[0x5e] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Bottom-left corner
+
+    if not data[0x8a3]:
+        neighbors = []
+
+        # (x, y - 1)
+        if data[0x843]:
+            neighbors.append(data[0x840 : 0x843])
+
+        # (x + 1, y - 1)
+        if data[0x847]:
+            neighbors.append(data[0x844 : 0x847])
+
+        # (x + 1, y)
+        if data[0x8a7]:
+            neighbors.append(data[0x8a4 : 0x8a7])
+
+        if neighbors:
+            ln = len_loc(neighbors)
+            data[0x8a0] = sum_loc(n[0] for n in neighbors) // ln
+            data[0x8a1] = sum_loc(n[1] for n in neighbors) // ln
+            data[0x8a2] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Bottom-right corner
+
+    if not data[0x8ff]:
+        neighbors = []
+
+        # (x - 1, y)
+        if data[0x8fb]:
+            neighbors.append(data[0x8f8 : 0x8fb])
+
+        # (x - 1, y - 1)
+        if data[0x89b]:
+            neighbors.append(data[0x898 : 0x89b])
+
+        # (x, y - 1)
+        if data[0x89f]:
+            neighbors.append(data[0x89c : 0x89f])
+
+        if neighbors:
+            ln = len_loc(neighbors)
+            data[0x8fc] = sum_loc(n[0] for n in neighbors) // ln
+            data[0x8fd] = sum_loc(n[1] for n in neighbors) // ln
+            data[0x8fe] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Top edge, except corners
+
+    for offset in range_loc(0x7, 0x5f, 0x4):
+        if not data[offset]:
+            neighbors = []
+
+            # (x + 1, y)
+            offset += 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x + 1, y + 1)
+            offset += 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x, y + 1)
+            offset -= 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x - 1, y + 1)
+            offset -= 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x - 1, y)
+            offset -= 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            if neighbors:
+                ln = len_loc(neighbors)
+                data[offset + 1] = sum_loc(n[0] for n in neighbors) // ln
+                data[offset + 2] = sum_loc(n[1] for n in neighbors) // ln
+                data[offset + 3] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Bottom edge, except corners
+
+    for offset in range_loc(0x8a7, 0x8ff, 0x4):
+        if not data[offset]:
+            neighbors = []
+
+            # (x - 1, y)
+            offset -= 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x - 1, y - 1)
+            offset -= 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x, y - 1)
+            offset += 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x + 1, y - 1)
+            offset += 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x + 1, y)
+            offset += 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            if neighbors:
+                ln = len_loc(neighbors)
+                data[offset - 7] = sum_loc(n[0] for n in neighbors) // ln
+                data[offset - 6] = sum_loc(n[1] for n in neighbors) // ln
+                data[offset - 5] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Left edge, except corners
+
+    for offset in range_loc(0x63, 0x8a3, 0x60):
+        if not data[offset]:
+            neighbors = []
+
+            # (x, y - 1)
+            offset -= 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x + 1, y - 1)
+            offset += 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x + 1, y)
+            offset += 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x + 1, y + 1)
+            offset += 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x, y + 1)
+            offset -= 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            if neighbors:
+                offset -= 0x63
+                ln = len_loc(neighbors)
+                data[offset] = sum_loc(n[0] for n in neighbors) // ln
+                data[offset + 1] = sum_loc(n[1] for n in neighbors) // ln
+                data[offset + 2] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Right edge, except corners
+
+    for offset in range_loc(0xbf, 0x8ff, 0x60):
+        if not data[offset]:
+            neighbors = []
+
+            # (x, y + 1)
+            offset += 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x - 1, y + 1)
+            offset -= 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x - 1, y)
+            offset -= 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x - 1, y - 1)
+            offset -= 0x60
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            # (x, y - 1)
+            offset += 0x4
+            if data[offset]:
+                neighbors.append(data[offset - 3 : offset])
+
+            if neighbors:
+                offset += 0x5d
+                ln = len_loc(neighbors)
+                data[offset] = sum_loc(n[0] for n in neighbors) // ln
+                data[offset + 1] = sum_loc(n[1] for n in neighbors) // ln
+                data[offset + 2] = sum_loc(n[2] for n in neighbors) // ln
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Main body
+
+    for row_start_offs in range_loc(0x67, 0x8a7, 0x60):
+        for offset in range_loc(row_start_offs, row_start_offs + 0x58, 0x4):
+            if not data[offset]:  # (fully transparent pixel)
+                neighbors = []
+
+                # (x, y - 1)
+                offset -= 0x60
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x + 1, y - 1)
+                offset += 0x4
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x + 1, y)
+                offset += 0x60
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x + 1, y + 1)
+                offset += 0x60
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x, y + 1)
+                offset -= 0x4
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x - 1, y + 1)
+                offset -= 0x4
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x - 1, y)
+                offset -= 0x60
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                # (x - 1, y - 1)
+                offset -= 0x60
+                if data[offset]:
+                    neighbors.append(data[offset - 3 : offset])
+
+                if neighbors:
+                    offset += 0x61
+                    ln = len_loc(neighbors)
+                    data[offset] = sum_loc(n[0] for n in neighbors) // ln
+                    data[offset + 1] = sum_loc(n[1] for n in neighbors) // ln
+                    data[offset + 2] = sum_loc(n[2] for n in neighbors) // ln
 
 
 #############################################################################################
@@ -2310,10 +2634,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.alpha == True:
             for tile in Tileset.tiles:
-                self.model.addPieces(tile.image)
+                self.model.addPieces(QtGui.QPixmap.fromImage(tile.image))
         else:
             for tile in Tileset.tiles:
-                self.model.addPieces(tile.noalpha)
+                self.model.addPieces(QtGui.QPixmap.fromImage(tile.noalpha))
 
 
     def newTileset(self):
@@ -2323,11 +2647,11 @@ class MainWindow(QtWidgets.QMainWindow):
         Tileset.clear()
         Tileset = TilesetClass()
 
-        EmptyPix = QtGui.QPixmap(24, 24)
-        EmptyPix.fill(Qt.black)
+        EmptyImg = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
+        EmptyImg.fill(Qt.black)
 
         for i in range(256):
-            Tileset.addTile(EmptyPix, EmptyPix)
+            Tileset.addTile(EmptyImg, EmptyImg)
 
         self.setuptile()
         self.setWindowTitle('New Tileset')
@@ -2385,23 +2709,20 @@ class MainWindow(QtWidgets.QMainWindow):
             tiledata = nsmblib.decompress11LZS(Image)
             if hasattr(nsmblib, 'decodeTilesetNoPremultiplication'):
                 argbdata = nsmblib.decodeTilesetNoPremultiplication(tiledata)
-                dest = QtGui.QImage(argbdata, 1024, 256, 4096, QtGui.QImage.Format_ARGB32)
+                tileImage = QtGui.QImage(argbdata, 1024, 256, QtGui.QImage.Format_ARGB32)
             else:
-                dest = RGB4A3Decode(tiledata)
+                tileImage = RGB4A3Decode(tiledata)
 
             if hasattr(nsmblib, 'decodeTilesetNoPremultiplicationNoAlpha'):
                 rgbdata = nsmblib.decodeTilesetNoPremultiplicationNoAlpha(tiledata)
-                noalphadest = QtGui.QImage(rgbdata, 1024, 256, 4096, QtGui.QImage.Format_ARGB32)
+                noalphaImage = QtGui.QImage(rgbdata, 1024, 256, QtGui.QImage.Format_ARGB32)
             else:
-                noalphadest = RGB4A3Decode(tiledata, False)
+                noalphaImage = RGB4A3Decode(tiledata, False)
         else:
             lz = lz77.LZS11()
             decomp = lz.Decompress11LZS(Image)
-            dest = RGB4A3Decode(decomp)
-            noalphadest = RGB4A3Decode(decomp, False)
-
-        tileImage = QtGui.QPixmap.fromImage(dest)
-        noalpha = QtGui.QPixmap.fromImage(noalphadest)
+            tileImage = RGB4A3Decode(decomp)
+            noalphaImage = RGB4A3Decode(decomp, False)
 
         # Loads Tile Behaviours
 
@@ -2414,7 +2735,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Xoffset = 4
         Yoffset = 4
         for i in range(256):
-            Tileset.addTile(tileImage.copy(Xoffset,Yoffset,24,24), noalpha.copy(Xoffset,Yoffset,24,24), behaviours[i])
+            Tileset.addTile(tileImage.copy(Xoffset,Yoffset,24,24), noalphaImage.copy(Xoffset,Yoffset,24,24), behaviours[i])
             Xoffset += 32
             if Xoffset >= 1024:
                 Xoffset = 4
@@ -2500,13 +2821,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if not path: return
 
-        tileImage = QtGui.QPixmap()
-        if not tileImage.load(path):
+        tileImage = QtGui.QImage(path)
+        if tileImage.isNull():
             QtWidgets.QMessageBox.warning(self, "Open Image",
                     "The image file could not be loaded.",
                     QtWidgets.QMessageBox.Cancel)
             return
-
 
         if tileImage.width() != 384 or tileImage.height() != 384:
             QtWidgets.QMessageBox.warning(self, "Open Image",
@@ -2515,18 +2835,23 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.Cancel)
             return
 
-        noalphaImage = QtGui.QPixmap(384, 384)
-        noalphaImage.fill(Qt.black)
-        p = QtGui.QPainter(noalphaImage)
-        p.drawPixmap(0, 0, tileImage)
-        p.end()
-        del p
+        if tileImage.format() != QtGui.QImage.Format.Format_ARGB32:
+            tileImage.convertTo(QtGui.QImage.Format.Format_ARGB32)
 
         x = 0
         y = 0
         for i in range(256):
-            Tileset.tiles[i].image = tileImage.copy(x*24,y*24,24,24)
-            Tileset.tiles[i].noalpha = noalphaImage.copy(x*24,y*24,24,24)
+            img = tileImage.copy(x*24,y*24,24,24)
+
+            bgra = bytearray(img.bits().asstring(24 * 24 * 4))
+            color_transparent_pixels_around_edges_24_24(bgra)
+
+            Tileset.tiles[i].image = QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32)
+
+            for offs in range(3, 24 * 24 * 4, 4):
+                bgra[offs] = 0xff
+            Tileset.tiles[i].noalpha = QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32)
+
             x += 1
             if (x * 24) >= 384:
                 y += 1
@@ -2540,7 +2865,7 @@ class MainWindow(QtWidgets.QMainWindow):
         fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Choose a new filename', '', '.png (*.png)')[0]
         if not fn: return
 
-        tex = QtGui.QPixmap(384, 384)
+        tex = QtGui.QImage(384, 384, QtGui.QImage.Format.Format_ARGB32)
         tex.fill(Qt.transparent)
         painter = QtGui.QPainter(tex)
 
@@ -2548,7 +2873,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Yoffset = 0
 
         for tile in Tileset.tiles:
-            painter.drawPixmap(Xoffset, Yoffset, tile.image)
+            painter.drawImage(Xoffset, Yoffset, tile.image)
             Xoffset += 24
             if Xoffset >= 384:
                 Xoffset = 0
@@ -2631,80 +2956,37 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def PackTexture(self):
 
-        tex = QtGui.QImage(1024, 256, QtGui.QImage.Format_ARGB32)
-        tex.fill(Qt.transparent)
-        painter = QtGui.QPainter(tex)
+        tex = bytearray(1024 * 256 * 4)
+        stride = 1024 * 4
 
-        Xoffset = 0
-        Yoffset = 0
+        for i, tile in enumerate(Tileset.tiles):
+            tile_bytes = bytearray(tile.image.bits().asstring(24 * 24 * 4))
 
-        for tile in Tileset.tiles:
-            minitex = QtGui.QImage(32, 32, QtGui.QImage.Format_ARGB32)
-            minitex.fill(Qt.transparent)
-            minipainter = QtGui.QPainter(minitex)
+            row, col = divmod(i, 32)
+            dest_offs = row * 32 * stride + col * (32 * 4)
 
-            minipainter.drawPixmap(4, 4, tile.image)
-            minipainter.end()
+            for src_y in range(24):
+                row = tile_bytes[src_y * (24 * 4) : (src_y + 1) * (24 * 4)]
 
-            # Read colours and DESTROY THEM (or copy them to the edges, w/e)
-            for i in range(4,28):
+                # Clamp left/right pixels of the row
+                row = row[:4] * 4 + row + row[-4:] * 4
 
-                # Top Clamp
-                colour = minitex.pixel(i, 4)
-                for p in range(0,5):
-                    minitex.setPixel(i, p, colour)
+                tex[dest_offs : dest_offs + (32 * 4)] = row
+                dest_offs += stride
+                if src_y == 0 or src_y == 23:
+                    # Clamp top/bottom rows of the tile
+                    tex[dest_offs : dest_offs + (32 * 4)] = row
+                    dest_offs += stride
+                    tex[dest_offs : dest_offs + (32 * 4)] = row
+                    dest_offs += stride
+                    tex[dest_offs : dest_offs + (32 * 4)] = row
+                    dest_offs += stride
+                    tex[dest_offs : dest_offs + (32 * 4)] = row
+                    dest_offs += stride
 
-                # Left Clamp
-                colour = minitex.pixel(4, i)
-                for p in range(0,5):
-                    minitex.setPixel(p, i, colour)
+        tex = bytes(tex)
 
-                # Right Clamp
-                colour = minitex.pixel(i, 27)
-                for p in range(27,32):
-                    minitex.setPixel(i, p, colour)
-
-                # Bottom Clamp
-                colour = minitex.pixel(27, i)
-                for p in range(27,32):
-                    minitex.setPixel(p, i, colour)
-
-            # UpperLeft Corner Clamp
-            colour = minitex.pixel(4, 4)
-            for x in range(0,5):
-                for y in range(0,5):
-                    minitex.setPixel(x, y, colour)
-
-            # UpperRight Corner Clamp
-            colour = minitex.pixel(27, 4)
-            for x in range(27,32):
-                for y in range(0,5):
-                    minitex.setPixel(x, y, colour)
-
-            # LowerLeft Corner Clamp
-            colour = minitex.pixel(4, 27)
-            for x in range(0,5):
-                for y in range(27,32):
-                    minitex.setPixel(x, y, colour)
-
-            # LowerRight Corner Clamp
-            colour = minitex.pixel(27, 27)
-            for x in range(27,32):
-                for y in range(27,32):
-                    minitex.setPixel(x, y, colour)
-
-
-            painter.drawImage(Xoffset, Yoffset, minitex)
-
-            Xoffset += 32
-
-            if Xoffset >= 1024:
-                Xoffset = 0
-                Yoffset += 32
-
-        painter.end()
-
-        dest = RGB4A3Encode(tex)
+        tex = RGB4A3Encode(tex)
 
         useNSMBLib = HaveNSMBLib and hasattr(nsmblib, 'compress11LZS')
 
@@ -2725,20 +3007,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 # NSMBLib is available, but only with the broken compression algorithm,
                 # so the user can choose whether to use it or not
 
-                items = ("Slow Compression, Good Quality", "Fast Compression, but the Image gets damaged")
+                items = ['Slow compression, good quality', 'Fast compression, but the image gets damaged']
 
-                item, ok = QtWidgets.QInputDialog.getItem(self, "Choose compression method",
-                        "Two methods of compression are available. Choose<br />"
-                        "Fast compression for rapid testing. Choose slow<br />"
-                        "compression for releases.<br />"
-                        "<br />"
-                        "To fix the fast compression, download and install<br />"
-                        "NSMBLib-Updated (\"pip uninstall nsmblib\", \"pip<br />"
-                        "install nsmblib\").\n", items, 0, False)
+                item, ok = QtWidgets.QInputDialog.getItem(self, 'Choose compression method',
+                    'Two methods of compression are available. Choose<br />'
+                    '"fast compression" for rapid testing. Choose "slow<br />'
+                    'compression" for releases.<br />'
+                    '<br />'
+                    'To fix the fast compression, download and install<br />'
+                    'NSMBLib-Updated:<br />'
+                    '"pip install --force-reinstall --no-cache-dir nsmblib"',
+                    items, 0, False)
                 if not ok:
                     return None
 
-                if item == "Slow Compression, Good Quality":
+                if item == "Slow compression, good quality":
                     useNSMBLib = False
                 else:
                     useNSMBLib = True
@@ -2748,12 +3031,9 @@ class MainWindow(QtWidgets.QMainWindow):
             useNSMBLib = False
 
         if useNSMBLib:
-            TexBuffer = nsmblib.compress11LZS(dest)
+            return nsmblib.compress11LZS(bytes(tex))
         else:
-            lz = lz77.LZS11()
-            TexBuffer = lz.Compress11LZS(dest)
-
-        return TexBuffer
+            return lz77.LZS11().Compress11LZS(tex)
 
 
     def PackTiles(self):
