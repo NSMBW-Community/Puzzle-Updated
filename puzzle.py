@@ -1903,7 +1903,7 @@ class tileWidget(QtWidgets.QWidget):
             y = int((self.contY - upperLeftY) / 24)
 
             if tileset != Tileset.slot:
-                tex = QtGui.QPixmap(self.size[0] * 24, self.size[1] * 24)
+                tex = QtGui.QImage(self.size[0] * 24, self.size[1] * 24, QtGui.QImage.Format.Format_ARGB32)
                 tex.fill(Qt.transparent)
 
                 self.tiles[(y * self.size[0]) + x][2] = tex
