@@ -18,8 +18,9 @@ DATA_FOLDERS = ['Icons']
 DATA_FILES = ['readme.txt', 'license.txt']
 EXTRA_IMPORT_PATHS = []
 
-EXCLUDE_SELECT = True
-EXCLUDE_THREADING = True
+USE_PYQT = True
+USE_NSMBLIB = True
+
 EXCLUDE_HASHLIB = True
 
 # macOS only
