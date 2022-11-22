@@ -7,13 +7,22 @@ import sys
 
 try:
     from PyQt6 import QtCore, QtGui, QtWidgets
+    QtName = 'PyQt6'
 except ImportError:
     try:
         from PyQt5 import QtCore, QtGui, QtWidgets
+        QtName = 'PyQt5'
     except ImportError:
         raise RuntimeError('Could not find any supported Qt bindings. Please read the readme for more information.')
+
+def pyqtVersionToTuple(v):
+    return (v >> 16, (v >> 8) & 0xff, v & 0xff)
+
 Qt = QtCore.Qt
 QtCompatVersion = tuple([int(c) for c in QtCore.qVersion().split('.')])
+QtBindingsVersion = (QtCore.PYQT_VERSION >> 16,
+                     (QtCore.PYQT_VERSION >> 8) & 0xff,
+                     QtCore.PYQT_VERSION & 0xff)
 
 import archive
 import lz77
@@ -3169,11 +3178,30 @@ class MainWindow(QtWidgets.QMainWindow):
         addAction(fileMenu, "Quit", self.close, QtGui.QKeySequence('Ctrl-Q'))
 
         fileMenu.addSeparator()
-        nsmblibAct = fileMenu.addAction('Using NSMBLib' if HaveNSMBLib else 'Not using NSMBLib')
-        nsmblibAct.setEnabled(False)
+
+        if HaveNSMBLib:
+            if hasattr(nsmblib, 'getUpdatedVersion'):
+                updatedVersion = nsmblib.getUpdatedVersion()
+                updatedVersionStr = '%04d.%02d.%02d.%d' % (updatedVersion // 1000000,
+                                                           (updatedVersion // 10000) % 100,
+                                                           (updatedVersion // 100) % 100,
+                                                           updatedVersion % 100)
+                nsmblib_msg = 'Using NSMBLib-Updated %s' % (updatedVersionStr)
+            else:
+                nsmblib_msg = 'Using NSMBLib %d' % nsmblib.getVersion()
+        else:
+            nsmblib_msg = 'Not using NSMBLib'
+
+        pyVerAct = fileMenu.addAction('Using Python %d.%d.%d' % sys.version_info[:3])
+        pyVerAct.setEnabled(False)
+        bindingsVerAct = fileMenu.addAction('Using %s %d.%d.%d' % (QtName, QtBindingsVersion[0], QtBindingsVersion[1], QtBindingsVersion[2]))
+        bindingsVerAct.setEnabled(False)
+        qtVerAct = fileMenu.addAction('Using Qt %d.%d.%d' % QtCompatVersion)
+        qtVerAct.setEnabled(False)
+        nsmblibVerAct = fileMenu.addAction(nsmblib_msg)
+        nsmblibVerAct.setEnabled(False)
 
         taskMenu = self.menuBar().addMenu("&Tasks")
-
         addAction(taskMenu, "Set Tileset Slot...", self.setSlot, QtGui.QKeySequence('Ctrl+T'))
         addAction(taskMenu, "Toggle Alpha", self.toggleAlpha, QtGui.QKeySequence('Ctrl+Shift+A'))
         addAction(taskMenu, "Clear Collision Data", self.clearCollisions, QtGui.QKeySequence('Ctrl+Shift+Backspace'))
