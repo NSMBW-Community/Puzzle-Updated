@@ -1,32 +1,28 @@
 #!/usr/bin/env python3
 
-import archive
-import lz77
+from ctypes import create_string_buffer
 import os, os.path
 import struct
 import sys
 
-from ctypes import create_string_buffer
 try:
-    from PyQt5 import QtCore, QtGui, QtWidgets
+    from PyQt6 import QtCore, QtGui, QtWidgets
 except ImportError:
-    from PySide2 import QtCore, QtGui, QtWidgets
+    try:
+        from PyQt5 import QtCore, QtGui, QtWidgets
+    except ImportError:
+        raise RuntimeError('Could not find any supported Qt bindings. Please read the readme for more information.')
 Qt = QtCore.Qt
+QtCompatVersion = tuple([int(c) for c in QtCore.qVersion().split('.')])
 
+import archive
+import lz77
 
 try:
     import nsmblib
     HaveNSMBLib = True
 except ImportError:
     HaveNSMBLib = False
-
-
-if hasattr(QtCore, 'pyqtSlot'): # PyQt
-    QtCoreSlot = QtCore.pyqtSlot
-    QtCoreSignal = QtCore.pyqtSignal
-else: # PySide2
-    QtCoreSlot = QtCore.Slot
-    QtCoreSignal = QtCore.Signal
 
 
 ########################################################
@@ -566,7 +562,7 @@ class InfoBox(QtWidgets.QWidget):
         imageLayout = QtWidgets.QHBoxLayout()
 
         pix = QtGui.QPixmap(24, 24)
-        pix.fill(Qt.transparent)
+        pix.fill(Qt.GlobalColor.transparent)
 
         self.coreImage = QtWidgets.QLabel()
         self.coreImage.setPixmap(pix)
@@ -615,23 +611,23 @@ class InfoBox(QtWidgets.QWidget):
 
         label = QtWidgets.QLabel('Core')
         label.setFont(Font)
-        coreLayout.addWidget(label, 0, Qt.AlignCenter)
+        coreLayout.addWidget(label, 0, Qt.AlignmentFlag.AlignCenter)
 
         label = QtWidgets.QLabel('Terrain')
         label.setFont(Font)
-        terrLayout.addWidget(label, 0, Qt.AlignCenter)
+        terrLayout.addWidget(label, 0, Qt.AlignmentFlag.AlignCenter)
 
         label = QtWidgets.QLabel('Parameters')
         label.setFont(Font)
-        paramLayout.addWidget(label, 0, Qt.AlignCenter)
+        paramLayout.addWidget(label, 0, Qt.AlignmentFlag.AlignCenter)
 
-        coreLayout.addWidget(self.coreImage, 0, Qt.AlignCenter)
-        terrLayout.addWidget(self.terrainImage, 0, Qt.AlignCenter)
-        paramLayout.addWidget(self.parameterImage, 0, Qt.AlignCenter)
+        coreLayout.addWidget(self.coreImage, 0, Qt.AlignmentFlag.AlignCenter)
+        terrLayout.addWidget(self.terrainImage, 0, Qt.AlignmentFlag.AlignCenter)
+        paramLayout.addWidget(self.parameterImage, 0, Qt.AlignmentFlag.AlignCenter)
 
-        coreLayout.addWidget(self.coreInfo, 0, Qt.AlignCenter)
-        terrLayout.addWidget(self.terrainInfo, 0, Qt.AlignCenter)
-        paramLayout.addWidget(self.paramInfo, 0, Qt.AlignCenter)
+        coreLayout.addWidget(self.coreInfo, 0, Qt.AlignmentFlag.AlignCenter)
+        terrLayout.addWidget(self.terrainInfo, 0, Qt.AlignmentFlag.AlignCenter)
+        paramLayout.addWidget(self.paramInfo, 0, Qt.AlignmentFlag.AlignCenter)
 
         imageLayout.setContentsMargins(0,4,4,4)
         imageLayout.addLayout(coreLayout)
@@ -661,11 +657,11 @@ class objectList(QtWidgets.QListView):
         super(objectList, self).__init__(parent)
 
 
-        self.setViewMode(QtWidgets.QListView.IconMode)
+        self.setViewMode(QtWidgets.QListView.ViewMode.IconMode)
         self.setIconSize(QtCore.QSize(96,96))
         self.setGridSize(QtCore.QSize(114,114))
-        self.setMovement(QtWidgets.QListView.Static)
-        self.setBackgroundRole(QtGui.QPalette.BrightText)
+        self.setMovement(QtWidgets.QListView.Movement.Static)
+        self.setBackgroundRole(QtGui.QPalette.ColorRole.BrightText)
         self.setWrapping(False)
         self.setMinimumHeight(140)
         self.setMaximumHeight(140)
@@ -679,7 +675,7 @@ def SetupObjectModel(self, objects, tiles):
     count = 0
     for object in objects:
         tex = QtGui.QPixmap(object.width * 24, object.height * 24)
-        tex.fill(Qt.transparent)
+        tex.fill(Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(tex)
 
         Xoffset = 0
@@ -708,7 +704,7 @@ def SetupObjectModel(self, objects, tiles):
 
 class displayWidget(QtWidgets.QListView):
 
-    mouseMoved = QtCoreSignal(int, int)
+    mouseMoved = QtCore.pyqtSignal(int, int)
 
     def __init__(self, parent=None):
         super(displayWidget, self).__init__(parent)
@@ -717,18 +713,18 @@ class displayWidget(QtWidgets.QListView):
         self.setMaximumWidth(424)
         self.setMinimumHeight(404)
         self.setDragEnabled(True)
-        self.setViewMode(QtWidgets.QListView.IconMode)
+        self.setViewMode(QtWidgets.QListView.ViewMode.IconMode)
         self.setIconSize(QtCore.QSize(24,24))
         self.setGridSize(QtCore.QSize(25,25))
-        self.setMovement(QtWidgets.QListView.Static)
+        self.setMovement(QtWidgets.QListView.Movement.Static)
         self.setAcceptDrops(False)
         self.setDropIndicatorShown(True)
-        self.setResizeMode(QtWidgets.QListView.Adjust)
+        self.setResizeMode(QtWidgets.QListView.ResizeMode.Adjust)
         self.setUniformItemSizes(True)
-        self.setBackgroundRole(QtGui.QPalette.BrightText)
+        self.setBackgroundRole(QtGui.QPalette.ColorRole.BrightText)
         self.setMouseTracking(True)
-        self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.setItemDelegate(self.TileItemDelegate())
 
@@ -736,7 +732,7 @@ class displayWidget(QtWidgets.QListView):
     def mouseMoveEvent(self, event):
         QtWidgets.QWidget.mouseMoveEvent(self, event)
 
-        self.mouseMoved.emit(event.x(), event.y())
+        self.mouseMoved.emit(event.pos().x(), event.pos().y())
 
 
 
@@ -751,7 +747,7 @@ class displayWidget(QtWidgets.QListView):
             """Paints an object"""
 
             global Tileset
-            p = index.model().data(index, Qt.DecorationRole)
+            p = index.model().data(index, Qt.ItemDataRole.DecorationRole)
             painter.drawPixmap(option.rect.x(), option.rect.y(), p.pixmap(24,24))
 
             x = option.rect.x()
@@ -804,16 +800,16 @@ class displayWidget(QtWidgets.QListView):
 
                 # Sets Brush style for fills
                 if curTile.byte2 & 4:        # Climbing Grid
-                    style = Qt.DiagCrossPattern
+                    style = Qt.BrushStyle.DiagCrossPattern
                 elif curTile.byte3 & 16:     # Breakable
-                    style = Qt.VerPattern
+                    style = Qt.BrushStyle.VerPattern
                 else:
-                    style = Qt.SolidPattern
+                    style = Qt.BrushStyle.SolidPattern
 
 
                 brush = QtGui.QBrush(colour, style)
                 painter.setBrush(brush)
-                painter.setRenderHint(QtGui.QPainter.Antialiasing)
+                painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
 
                 # Paints shape based on other junk
@@ -1167,7 +1163,7 @@ class displayWidget(QtWidgets.QListView):
             colour = option.palette.highlight().color()
             colour.setAlpha(80)
 
-            if option.state & QtWidgets.QStyle.State_Selected:
+            if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
                 painter.fillRect(option.rect, colour)
 
 
@@ -1258,7 +1254,7 @@ class tileOverlord(QtWidgets.QWidget):
         Tileset.addObject()
 
         pix = QtGui.QPixmap(24, 24)
-        pix.fill(Qt.transparent)
+        pix.fill(Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(pix)
         painter.drawImage(0, 0, Tileset.tiles[0].image)
         painter.end()
@@ -1361,7 +1357,7 @@ class tileOverlord(QtWidgets.QWidget):
 #            print 'Row: {0}'.format(row)
 #        print ''
 
-    @QtCoreSlot(int)
+    @QtCore.pyqtSlot(int)
     def setTiling(self, listindex):
         global Tileset
 
@@ -1677,7 +1673,7 @@ class tileWidget(QtWidgets.QWidget):
         self.setMinimumSize(self.size[0]*24, self.size[1]*24)
 
         img = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
-        img.fill(QtCore.Qt.transparent)
+        img.fill(Qt.GlobalColor.transparent)
 
         for y in range(self.size[1]):
             self.tiles.insert(((y+1) * self.size[0]) -1, [self.size[0]-1, y, img])
@@ -1729,7 +1725,7 @@ class tileWidget(QtWidgets.QWidget):
         self.setMinimumSize(self.size[0]*24, self.size[1]*24)
 
         img = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
-        img.fill(QtCore.Qt.transparent)
+        img.fill(Qt.GlobalColor.transparent)
 
         for x in range(self.size[0]):
             self.tiles.append([x, self.size[1]-1, img])
@@ -1787,7 +1783,7 @@ class tileWidget(QtWidgets.QWidget):
                     self.tiles.append([x, y, Tileset.tiles[tile[1]].image])
                 else:
                     img = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
-                    img.fill(QtCore.Qt.transparent)
+                    img.fill(Qt.GlobalColor.transparent)
                     self.tiles.append([x, y, img])
                 x += 1
             y += 1
@@ -1808,7 +1804,7 @@ class tileWidget(QtWidgets.QWidget):
         TileMenu.addAction('Set tile...', self.setTile)
         TileMenu.addAction('Set item...', self.setItem)
 
-        TileMenu.exec_(event.globalPos())
+        TileMenu.exec(event.globalPos())
 
 
     def mousePressEvent(self, event):
@@ -1836,10 +1832,10 @@ class tileWidget(QtWidgets.QWidget):
             lowerRightY = centerPoint.y() + self.size[1]*12
 
 
-            x = int((event.x() - upperLeftX)/24 + ix)
-            y = int((event.y() - upperLeftY)/24 + iy)
+            x = int((event.pos().x() - upperLeftX)/24 + ix)
+            y = int((event.pos().y() - upperLeftY)/24 + iy)
 
-            if event.x() < upperLeftX or event.y() < upperLeftY or event.x() > lowerRightX or event.y() > lowerRightY:
+            if event.pos().x() < upperLeftX or event.pos().y() < upperLeftY or event.pos().x() > lowerRightX or event.pos().y() > lowerRightY:
                 return
 
             try:
@@ -1868,7 +1864,7 @@ class tileWidget(QtWidgets.QWidget):
 
 
         tex = QtGui.QPixmap(self.size[0] * 24, self.size[1] * 24)
-        tex.fill(Qt.transparent)
+        tex.fill(Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(tex)
 
         Xoffset = 0
@@ -1889,7 +1885,7 @@ class tileWidget(QtWidgets.QWidget):
         global Tileset
 
         dlg = self.setTileDialog()
-        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+        if dlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             # Do stuff
             centerPoint = self.contentsRect().center()
 
@@ -1904,7 +1900,7 @@ class tileWidget(QtWidgets.QWidget):
 
             if tileset != Tileset.slot:
                 tex = QtGui.QImage(self.size[0] * 24, self.size[1] * 24, QtGui.QImage.Format.Format_ARGB32)
-                tex.fill(Qt.transparent)
+                tex.fill(Qt.GlobalColor.transparent)
 
                 self.tiles[(y * self.size[0]) + x][2] = tex
 
@@ -1927,13 +1923,13 @@ class tileWidget(QtWidgets.QWidget):
             self.tile = QtWidgets.QSpinBox()
             self.tile.setRange(0, 255)
 
-            self.buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            self.buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
             self.buttons.accepted.connect(self.accept)
             self.buttons.rejected.connect(self.reject)
 
             self.layout = QtWidgets.QGridLayout()
-            self.layout.addWidget(QtWidgets.QLabel('Tileset:'), 0,0,1,1, Qt.AlignLeft)
-            self.layout.addWidget(QtWidgets.QLabel('Tile:'), 0,3,1,1, Qt.AlignLeft)
+            self.layout.addWidget(QtWidgets.QLabel('Tileset:'), 0,0,1,1, Qt.AlignmentFlag.AlignLeft)
+            self.layout.addWidget(QtWidgets.QLabel('Tile:'), 0,3,1,1, Qt.AlignmentFlag.AlignLeft)
             self.layout.addWidget(self.tileset, 1, 0, 1, 2)
             self.layout.addWidget(self.tile, 1, 3, 1, 3)
             self.layout.addWidget(self.buttons, 2, 3)
@@ -1954,7 +1950,7 @@ class tileWidget(QtWidgets.QWidget):
         obj = Tileset.objects[self.object].tiles[y][x]
 
         dlg = self.setItemDialog(obj[2] >> 2)
-        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+        if dlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             # Do stuff
             item = dlg.item.currentIndex()
 
@@ -1990,7 +1986,7 @@ class tileWidget(QtWidgets.QWidget):
                 'Unknown (14)'])
             self.item.setCurrentIndex(initialIndex)
 
-            self.buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            self.buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
             self.buttons.accepted.connect(self.accept)
             self.buttons.rejected.connect(self.reject)
 
@@ -2025,7 +2021,7 @@ class tileWidget(QtWidgets.QWidget):
             pen = QtGui.QPen()
 #            pen.setStyle(Qt.QDashLine)
             pen.setWidth(1)
-            pen.setColor(Qt.blue)
+            pen.setColor(Qt.GlobalColor.blue)
             painter.setPen(QtGui.QPen(pen))
             painter.drawLine(upperLeftX, upperLeftY + (abs(self.slope) * 24), lowerRightX, upperLeftY + (abs(self.slope) * 24))
 
@@ -2060,16 +2056,16 @@ class PiecesModel(QtCore.QAbstractListModel):
 
     def supportedDragActions(self):
         super().supportedDragActions()
-        return Qt.CopyAction | Qt.MoveAction | Qt.LinkAction
+        return Qt.DropAction.CopyAction | Qt.DropAction.MoveAction | Qt.DropAction.LinkAction
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
 
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             return QtGui.QIcon(self.pixmaps[index.row()])
 
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.pixmaps[index.row()]
 
         return None
@@ -2083,8 +2079,8 @@ class PiecesModel(QtCore.QAbstractListModel):
 
     def flags(self,index):
         if index.isValid():
-            return (Qt.ItemIsEnabled | Qt.ItemIsSelectable |
-                    Qt.ItemIsDragEnabled)
+            return (Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable |
+                    Qt.ItemFlag.ItemIsDragEnabled)
 
     def clear(self):
         row = len(self.pixmaps)
@@ -2104,7 +2100,7 @@ class PiecesModel(QtCore.QAbstractListModel):
 
         for index in indexes:
             if index.isValid():
-                pixmap = QtGui.QPixmap(self.data(index, Qt.UserRole))
+                pixmap = QtGui.QPixmap(self.data(index, Qt.ItemDataRole.UserRole))
                 stream << pixmap
 
         mimeData.setData('image/x-tile-piece', encodedData)
@@ -2118,7 +2114,7 @@ class PiecesModel(QtCore.QAbstractListModel):
             return len(self.pixmaps)
 
     def supportedDragActions(self):
-        return Qt.CopyAction | Qt.MoveAction
+        return Qt.DropAction.CopyAction | Qt.DropAction.MoveAction
 
 
 
@@ -2208,7 +2204,7 @@ def RGB4A3Decode(tex, useAlpha=True):
 
     # Convert the list of ARGB color values into a bytes object, and
     # then convert that into a QImage
-    return QtGui.QImage(struct.pack('<262144I', *dest), 1024, 256, QtGui.QImage.Format_ARGB32)
+    return QtGui.QImage(struct.pack('<262144I', *dest), 1024, 256, QtGui.QImage.Format.Format_ARGB32)
 
 
 def RGB4A3Encode(tex):
@@ -2623,8 +2619,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.newTileset()
 
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                QtWidgets.QSizePolicy.Fixed))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed,
+                QtWidgets.QSizePolicy.Policy.Fixed))
         self.setWindowTitle("New Tileset")
 
 
@@ -2648,7 +2644,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Tileset = TilesetClass()
 
         EmptyImg = QtGui.QImage(24, 24, QtGui.QImage.Format.Format_ARGB32)
-        EmptyImg.fill(Qt.black)
+        EmptyImg.fill(Qt.GlobalColor.black)
 
         for i in range(256):
             Tileset.addTile(EmptyImg, EmptyImg)
@@ -2709,13 +2705,13 @@ class MainWindow(QtWidgets.QMainWindow):
             tiledata = nsmblib.decompress11LZS(Image)
             if hasattr(nsmblib, 'decodeTilesetNoPremultiplication'):
                 argbdata = nsmblib.decodeTilesetNoPremultiplication(tiledata)
-                tileImage = QtGui.QImage(argbdata, 1024, 256, QtGui.QImage.Format_ARGB32)
+                tileImage = QtGui.QImage(argbdata, 1024, 256, QtGui.QImage.Format.Format_ARGB32)
             else:
                 tileImage = RGB4A3Decode(tiledata)
 
             if hasattr(nsmblib, 'decodeTilesetNoPremultiplicationNoAlpha'):
                 rgbdata = nsmblib.decodeTilesetNoPremultiplicationNoAlpha(tiledata)
-                noalphaImage = QtGui.QImage(rgbdata, 1024, 256, QtGui.QImage.Format_ARGB32)
+                noalphaImage = QtGui.QImage(rgbdata, 1024, 256, QtGui.QImage.Format.Format_ARGB32)
             else:
                 noalphaImage = RGB4A3Decode(tiledata, False)
         else:
@@ -2825,14 +2821,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if tileImage.isNull():
             QtWidgets.QMessageBox.warning(self, "Open Image",
                     "The image file could not be loaded.",
-                    QtWidgets.QMessageBox.Cancel)
+                    QtWidgets.QMessageBox.StandardButton.Cancel)
             return
 
         if tileImage.width() != 384 or tileImage.height() != 384:
             QtWidgets.QMessageBox.warning(self, "Open Image",
                     "The image was not the proper dimensions."
                     "Please resize the image to 384x384 pixels.",
-                    QtWidgets.QMessageBox.Cancel)
+                    QtWidgets.QMessageBox.StandardButton.Cancel)
             return
 
         if tileImage.format() != QtGui.QImage.Format.Format_ARGB32:
@@ -2866,7 +2862,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not fn: return
 
         tex = QtGui.QImage(384, 384, QtGui.QImage.Format.Format_ARGB32)
-        tex.fill(Qt.transparent)
+        tex.fill(Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(tex)
 
         Xoffset = 0
@@ -3141,15 +3137,15 @@ class MainWindow(QtWidgets.QMainWindow):
         fileMenu = self.menuBar().addMenu("&File")
 
         pixmap = QtGui.QPixmap(60,60)
-        pixmap.fill(Qt.black)
+        pixmap.fill(Qt.GlobalColor.black)
         icon = QtGui.QIcon(pixmap)
 
-        self.action = fileMenu.addAction(icon, "New", self.newTileset, QtGui.QKeySequence.New)
-        fileMenu.addAction("Open...", self.openTileset, QtGui.QKeySequence.Open)
+        self.action = fileMenu.addAction(icon, "New", self.newTileset, QtGui.QKeySequence.StandardKey.New)
+        fileMenu.addAction("Open...", self.openTileset, QtGui.QKeySequence.StandardKey.Open)
         fileMenu.addAction("Import Image...", self.openImage, QtGui.QKeySequence('Ctrl+I'))
         fileMenu.addAction("Export Image...", self.saveImage, QtGui.QKeySequence('Ctrl+E'))
-        fileMenu.addAction("Save", self.saveTileset, QtGui.QKeySequence.Save)
-        fileMenu.addAction("Save as...", self.saveTilesetAs, QtGui.QKeySequence.SaveAs)
+        fileMenu.addAction("Save", self.saveTileset, QtGui.QKeySequence.StandardKey.Save)
+        fileMenu.addAction("Save as...", self.saveTilesetAs, QtGui.QKeySequence.StandardKey.SaveAs)
         fileMenu.addAction("Quit", self.close, QtGui.QKeySequence('Ctrl-Q'))
 
         fileMenu.addSeparator()
@@ -3434,6 +3430,11 @@ if __name__ == '__main__':
 
     import sys
 
+    # The default high-dpi scaling looks really bad, unfortunately.
+    if QtCompatVersion >= (5,14,0):
+        QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.RoundPreferFloor)
+
     app = QtWidgets.QApplication(sys.argv)
 
     # go to the script path
@@ -3445,5 +3446,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         window.openTilesetFromPath(sys.argv[1])
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
     app.deleteLater()
