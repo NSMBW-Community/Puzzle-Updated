@@ -153,7 +153,7 @@ class TilesetClass():
 class paletteWidget(QtWidgets.QWidget):
 
     def __init__(self, window):
-        super(paletteWidget, self).__init__(window)
+        super().__init__(window)
 
 
         # Core Types Radio Buttons and Tooltips
@@ -552,7 +552,7 @@ class paletteWidget(QtWidgets.QWidget):
 
 class InfoBox(QtWidgets.QWidget):
     def __init__(self, window):
-        super(InfoBox, self).__init__(window)
+        super().__init__(window)
 
         # InfoBox
         superLayout = QtWidgets.QGridLayout()
@@ -654,7 +654,7 @@ class InfoBox(QtWidgets.QWidget):
 class objectList(QtWidgets.QListView):
 
     def __init__(self, parent=None):
-        super(objectList, self).__init__(parent)
+        super().__init__(parent)
 
 
         self.setViewMode(QtWidgets.QListView.ViewMode.IconMode)
@@ -707,7 +707,7 @@ class displayWidget(QtWidgets.QListView):
     mouseMoved = QtCore.pyqtSignal(int, int)
 
     def __init__(self, parent=None):
-        super(displayWidget, self).__init__(parent)
+        super().__init__(parent)
 
         self.setMinimumWidth(424)
         self.setMaximumWidth(424)
@@ -741,7 +741,7 @@ class displayWidget(QtWidgets.QListView):
 
         def __init__(self):
             """Initialises the delegate"""
-            QtWidgets.QAbstractItemDelegate.__init__(self)
+            super().__init__()
 
         def paint(self, painter, option, index):
             """Paints an object"""
@@ -1180,7 +1180,7 @@ class displayWidget(QtWidgets.QListView):
 class tileOverlord(QtWidgets.QWidget):
 
     def __init__(self):
-        super(tileOverlord, self).__init__()
+        super().__init__()
 
         # Setup Widgets
         self.tiles = tileWidget()
@@ -1635,7 +1635,7 @@ class tileOverlord(QtWidgets.QWidget):
 class tileWidget(QtWidgets.QWidget):
 
     def __init__(self):
-        super(tileWidget, self).__init__()
+        super().__init__()
 
         self.tiles = []
 
@@ -1913,7 +1913,7 @@ class tileWidget(QtWidgets.QWidget):
     class setTileDialog(QtWidgets.QDialog):
 
         def __init__(self):
-            QtWidgets.QDialog.__init__(self)
+            super().__init__()
 
             self.setWindowTitle('Set tiles')
 
@@ -1963,7 +1963,7 @@ class tileWidget(QtWidgets.QWidget):
     class setItemDialog(QtWidgets.QDialog):
 
         def __init__(self, initialIndex=0):
-            QtWidgets.QDialog.__init__(self)
+            super().__init__()
 
             self.setWindowTitle('Set item')
 
@@ -2050,7 +2050,7 @@ class tileWidget(QtWidgets.QWidget):
 
 class PiecesModel(QtCore.QAbstractListModel):
     def __init__(self, parent=None):
-        super(PiecesModel, self).__init__(parent)
+        super().__init__(parent)
 
         self.pixmaps = []
 
@@ -2603,7 +2603,7 @@ def color_transparent_pixels_around_edges_24_24(data: bytearray) -> None:
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+        super().__init__(parent)
 
         self.alpha = True
 
