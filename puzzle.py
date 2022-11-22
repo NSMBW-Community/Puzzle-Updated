@@ -3140,13 +3140,33 @@ class MainWindow(QtWidgets.QMainWindow):
         pixmap.fill(Qt.GlobalColor.black)
         icon = QtGui.QIcon(pixmap)
 
-        self.action = fileMenu.addAction(icon, "New", self.newTileset, QtGui.QKeySequence.StandardKey.New)
-        fileMenu.addAction("Open...", self.openTileset, QtGui.QKeySequence.StandardKey.Open)
-        fileMenu.addAction("Import Image...", self.openImage, QtGui.QKeySequence('Ctrl+I'))
-        fileMenu.addAction("Export Image...", self.saveImage, QtGui.QKeySequence('Ctrl+E'))
-        fileMenu.addAction("Save", self.saveTileset, QtGui.QKeySequence.StandardKey.Save)
-        fileMenu.addAction("Save as...", self.saveTilesetAs, QtGui.QKeySequence.StandardKey.SaveAs)
-        fileMenu.addAction("Quit", self.close, QtGui.QKeySequence('Ctrl-Q'))
+        if QtCompatVersion < (6,0,0):
+            QAction = QtWidgets.QAction
+        else:
+            QAction = QtGui.QAction
+
+        def addAction(menu, text, slot, shortcut=None, icon=None):
+
+            if icon is not None:
+                act = QAction(icon, text, self)
+            else:
+                act = QAction(text, self)
+
+            act.triggered.connect(slot)
+
+            if shortcut is not None:
+                act.setShortcut(shortcut)
+
+            menu.addAction(act)
+            return act
+
+        addAction(fileMenu, "New", self.newTileset, QtGui.QKeySequence.StandardKey.New, icon)
+        addAction(fileMenu, "Open...", self.openTileset, QtGui.QKeySequence.StandardKey.Open)
+        addAction(fileMenu, "Import Image...", self.openImage, QtGui.QKeySequence('Ctrl+I'))
+        addAction(fileMenu, "Export Image...", self.saveImage, QtGui.QKeySequence('Ctrl+E'))
+        addAction(fileMenu, "Save", self.saveTileset, QtGui.QKeySequence.StandardKey.Save)
+        addAction(fileMenu, "Save as...", self.saveTilesetAs, QtGui.QKeySequence.StandardKey.SaveAs)
+        addAction(fileMenu, "Quit", self.close, QtGui.QKeySequence('Ctrl-Q'))
 
         fileMenu.addSeparator()
         nsmblibAct = fileMenu.addAction('Using NSMBLib' if HaveNSMBLib else 'Not using NSMBLib')
@@ -3154,10 +3174,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         taskMenu = self.menuBar().addMenu("&Tasks")
 
-        taskMenu.addAction("Set Tileset Slot...", self.setSlot, QtGui.QKeySequence('Ctrl+T'))
-        taskMenu.addAction("Toggle Alpha", self.toggleAlpha, QtGui.QKeySequence('Ctrl+Shift+A'))
-        taskMenu.addAction("Clear Collision Data", self.clearCollisions, QtGui.QKeySequence('Ctrl+Shift+Backspace'))
-        taskMenu.addAction("Clear Object Data", self.clearObjects, QtGui.QKeySequence('Ctrl+Alt+Backspace'))
+        addAction(taskMenu, "Set Tileset Slot...", self.setSlot, QtGui.QKeySequence('Ctrl+T'))
+        addAction(taskMenu, "Toggle Alpha", self.toggleAlpha, QtGui.QKeySequence('Ctrl+Shift+A'))
+        addAction(taskMenu, "Clear Collision Data", self.clearCollisions, QtGui.QKeySequence('Ctrl+Shift+Backspace'))
+        addAction(taskMenu, "Clear Object Data", self.clearObjects, QtGui.QKeySequence('Ctrl+Alt+Backspace'))
 
 
 
