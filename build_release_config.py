@@ -15,7 +15,7 @@ MAC_BUNDLE_IDENTIFIER = 'ca.chronometry.puzzle'
 
 SCRIPT_FILE = 'puzzle.py'
 DATA_FOLDERS = ['Icons']
-DATA_FILES = ['readme.txt', 'license.txt']
+DATA_FILES = ['readme.md', 'license.txt']
 EXTRA_IMPORT_PATHS = []
 
 USE_PYQT = True
