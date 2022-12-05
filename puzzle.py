@@ -2843,26 +2843,167 @@ class MainWindow(QtWidgets.QMainWindow):
         if tileImage.format() != QtGui.QImage.Format.Format_ARGB32:
             tileImage.convertTo(QtGui.QImage.Format.Format_ARGB32)
 
+        if not hasattr(self, 'extendEdges'):
+            self.extendEdges = True
+            self.skipExtendEdgesDialog = False
+            isFirstTime = True
+        else:
+            isFirstTime = False
+
+        tileImagesRaw = []
+        tileImagesFixed = []
+        tileImagesRawNoAlpha = []
+        tileImagesFixedNoAlpha = []
+
         x = 0
         y = 0
         for i in range(256):
             img = tileImage.copy(x*24,y*24,24,24)
 
             bgra = bytearray(img.bits().asstring(24 * 24 * 4))
-            color_transparent_pixels_around_edges_24_24(bgra)
 
-            Tileset.tiles[i].image = QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32)
+            # Skip this if it's not going to be used for anything
+            if not self.skipExtendEdgesDialog or not self.extendEdges:
+                bgra_bk = bytearray(bgra)
 
-            for offs in range(3, 24 * 24 * 4, 4):
-                bgra[offs] = 0xff
-            Tileset.tiles[i].noalpha = QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32)
+                tileImagesRaw.append(QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32))
+                for offs in range(3, 24 * 24 * 4, 4):
+                    bgra[offs] = 0xff
+                tileImagesRawNoAlpha.append(QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32))
+
+                bgra = bgra_bk
+
+            # Ditto
+            if not self.skipExtendEdgesDialog or self.extendEdges:
+                color_transparent_pixels_around_edges_24_24(bgra)
+
+                tileImagesFixed.append(QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32))
+                for offs in range(3, 24 * 24 * 4, 4):
+                    bgra[offs] = 0xff
+                tileImagesFixedNoAlpha.append(QtGui.QImage(bytes(bgra), 24, 24, QtGui.QImage.Format.Format_ARGB32))
 
             x += 1
-            if (x * 24) >= 384:
+            if x >= 16:
                 y += 1
                 x = 0
 
+        # Show dialog if needed
+        if not self.skipExtendEdgesDialog:
+            fullRaw = QtGui.QImage(384, 384, QtGui.QImage.Format.Format_ARGB32)
+            painterRaw = QtGui.QPainter(fullRaw)
+            fullFixed = QtGui.QImage(384, 384, QtGui.QImage.Format.Format_ARGB32)
+            painterFixed = QtGui.QPainter(fullFixed)
+
+            Xoffset = Yoffset = 0
+            for raw, fixed in zip(tileImagesRawNoAlpha, tileImagesFixedNoAlpha):
+                painterRaw.drawImage(Xoffset, Yoffset, raw)
+                painterFixed.drawImage(Xoffset, Yoffset, fixed)
+                Xoffset += 24
+                if Xoffset >= 384:
+                    Xoffset = 0
+                    Yoffset += 24
+
+            del painterRaw, painterFixed
+
+            dlg = self.extendEdgesDialog(fullRaw, fullFixed, self.extendEdges, isFirstTime)
+
+            if dlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+                self.extendEdges = dlg.doFix
+                self.skipExtendEdgesDialog = dlg.rememberCheckbox.isChecked()
+            else:
+                return
+
+        # Apply new tile images
+        if self.extendEdges:
+            for i in range(256):
+                Tileset.tiles[i].image = tileImagesFixed[i]
+                Tileset.tiles[i].noalpha = tileImagesFixedNoAlpha[i]
+        else:
+            for i in range(256):
+                Tileset.tiles[i].image = tileImagesRaw[i]
+                Tileset.tiles[i].noalpha = tileImagesRawNoAlpha[i]
+
         self.setuptile()
+
+
+    class extendEdgesDialog(QtWidgets.QDialog):
+        class linkedScrollArea(QtWidgets.QScrollArea):
+            '''A QScrollArea that synchronizes its scrolling with another one (self.other)'''
+            updating = False
+
+            def __init__(self, parent=None):
+                super().__init__(parent)
+                self.horizontalScrollBar().valueChanged.connect(self.handleHorzScroll)
+                self.verticalScrollBar().valueChanged.connect(self.handleVertScroll)
+
+            def handleHorzScroll(self, value):
+                if self.updating: return
+                self.updating = True
+                self.other.horizontalScrollBar().setValue(value)
+                self.updating = False
+
+            def handleVertScroll(self, value):
+                if self.updating: return
+                self.updating = True
+                self.other.verticalScrollBar().setValue(value)
+                self.updating = False
+
+        def __init__(self, rawImage, fixedImage, defaultFixed, defaultRemember):
+            super().__init__()
+
+            self.setWindowTitle('Choose import options')
+
+            self.textLabel = QtWidgets.QLabel(
+                "When exporting, many image editing tools set the RGB values for transparent pixels to black or other arbitrary colors, since it's irrelevant in most cases."
+                " However, with the Wii's texture filtering, this can result in faint dark outlines around tiles."
+                "\n\nPuzzle can try to automatically correct for this, or you can keep the existing colors in your image."
+                '\n\nYou should choose "Fix colors of transparent pixels" in most cases unless you know what you\'re doing.')
+            self.textLabel.setWordWrap(True)
+
+            SCALE = 5
+
+            self.rawLabel = QtWidgets.QLabel(self)
+            self.rawLabel.setPixmap(QtGui.QPixmap.fromImage(rawImage).scaledToWidth(384 * SCALE))
+            self.fixedLabel = QtWidgets.QLabel(self)
+            self.fixedLabel.setPixmap(QtGui.QPixmap.fromImage(fixedImage).scaledToWidth(384 * SCALE))
+
+            self.rawScrollArea = self.linkedScrollArea(self)
+            self.rawScrollArea.setWidget(self.rawLabel)
+            self.fixedScrollArea = self.linkedScrollArea(self)
+            self.fixedScrollArea.setWidget(self.fixedLabel)
+            self.rawScrollArea.other = self.fixedScrollArea
+            self.fixedScrollArea.other = self.rawScrollArea
+
+            self.rawTitleLabel = QtWidgets.QLabel('<b>Original image without alpha channel:</b>')
+            self.fixedTitleLabel = QtWidgets.QLabel('<b>Fixed image without alpha channel:</b>')
+
+            self.rememberCheckbox = QtWidgets.QCheckBox("Don't ask again for this session")
+            self.rememberCheckbox.setChecked(defaultRemember)
+
+            self.buttons = QtWidgets.QDialogButtonBox()
+            self.buttons.addButton('Preserve colors of transparent pixels', QtWidgets.QDialogButtonBox.ButtonRole.AcceptRole)
+            self.fixedButton = QtWidgets.QPushButton('Fix colors of transparent pixels', self)
+            self.fixedButton.setDefault(True)
+            self.buttons.addButton(self.fixedButton, QtWidgets.QDialogButtonBox.ButtonRole.AcceptRole)
+            self.buttons.addButton(QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+            self.buttons.accepted.connect(self.accept)
+            self.buttons.rejected.connect(self.reject)
+            self.buttons.clicked.connect(self.handleClicked)
+
+            self.layout = QtWidgets.QGridLayout()
+            self.layout.addWidget(self.textLabel, 0, 0, 1, 2)
+            self.layout.setRowMinimumHeight(1, 32)
+            self.layout.addWidget(self.rawTitleLabel, 2, 0, 1, 1, Qt.AlignmentFlag.AlignCenter)
+            self.layout.addWidget(self.fixedTitleLabel, 2, 1, 1, 1, Qt.AlignmentFlag.AlignCenter)
+            self.layout.addWidget(self.rawScrollArea, 3, 0)
+            self.layout.addWidget(self.fixedScrollArea, 3, 1)
+            self.layout.setRowMinimumHeight(4, 32)
+            self.layout.addWidget(self.rememberCheckbox, 5, 0, 1, 2, Qt.AlignmentFlag.AlignRight)
+            self.layout.addWidget(self.buttons, 6, 0, 1, 2)
+            self.setLayout(self.layout)
+
+        def handleClicked(self, button):
+            self.doFix = (button is self.fixedButton)
 
 
     def saveImage(self):
