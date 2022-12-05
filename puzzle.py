@@ -2665,11 +2665,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def openTileset(self):
         '''Asks the user for a filename, then calls openTilesetFromPath().'''
 
-        path = QtWidgets.QFileDialog.getOpenFileName(self, "Open NSMBW Tileset", '',
+        defaultPath = settings.value('MostRecentArcPath', '')
+
+        path = QtWidgets.QFileDialog.getOpenFileName(self, "Open NSMBW Tileset", defaultPath,
                     "Tileset Files (*.arc)")[0]
 
         if path:
             self.openTilesetFromPath(path)
+            settings.setValue('MostRecentArcPath', os.path.dirname(path))
 
 
     def openTilesetFromPath(self, path):
@@ -2821,10 +2824,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def openImage(self):
         '''Opens an Image from png, and creates a new tileset from it.'''
 
-        path = QtWidgets.QFileDialog.getOpenFileName(self, "Open Image", '',
-                    "Image Files (*.png)")[0]
+        defaultPath = settings.value('MostRecentImagePath', '')
 
+        path = QtWidgets.QFileDialog.getOpenFileName(self, "Open Image", defaultPath,
+                    "Image Files (*.png)")[0]
         if not path: return
+
+        settings.setValue('MostRecentImagePath', os.path.dirname(path))
 
         tileImage = QtGui.QImage(path)
         if tileImage.isNull():
@@ -3008,8 +3014,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def saveImage(self):
 
-        fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Choose a new filename', '', '.png (*.png)')[0]
+        defaultPath = settings.value('MostRecentImagePath', '')
+
+        fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Choose a new filename', defaultPath, '.png (*.png)')[0]
         if not fn: return
+
+        settings.setValue('MostRecentImagePath', os.path.dirname(fn))
 
         tex = QtGui.QImage(384, 384, QtGui.QImage.Format.Format_ARGB32)
         tex.fill(Qt.GlobalColor.transparent)
@@ -3045,8 +3055,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def saveTilesetAs(self):
 
-        fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Choose a new filename', '', '.arc (*.arc)')[0]
+        defaultPath = settings.value('MostRecentArcPath', '')
+
+        fn = QtWidgets.QFileDialog.getSaveFileName(self, 'Choose a new filename', defaultPath, '.arc (*.arc)')[0]
         if not fn: return
+
+        settings.setValue('MostRecentArcPath', os.path.dirname(fn))
 
         outdata = self.saving(os.path.basename(str(fn))[:-4])
 
@@ -3625,6 +3639,15 @@ if __name__ == '__main__':
             Qt.HighDpiScaleFactorRoundingPolicy.RoundPreferFloor)
 
     app = QtWidgets.QApplication(sys.argv)
+
+    # load the settings
+    if os.path.isfile('portable.txt'):
+        settings = QtCore.QSettings('settings_Puzzle_%s.ini' % QtName, QtCore.QSettings.IniFormat)
+    else:
+        settings = QtCore.QSettings('Puzzle', 'Puzzle Tileset Editor (%s)' % QtName)
+
+    if '-clear-settings' in sys.argv:
+        settings.clear()
 
     # go to the script path
     path = module_path()
