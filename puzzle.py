@@ -77,6 +77,41 @@ def module_path():
     return None
 
 
+def setUpDarkMode():
+    """Sets up dark mode theming"""
+    # Taken from https://gist.github.com/QuantumCD/6245215
+
+    app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
+
+    darkPalette = QtGui.QPalette()
+    darkPalette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor(53,53,53))
+    darkPalette.setColor(QtGui.QPalette.ColorRole.WindowText, QtCore.Qt.GlobalColor.white)
+    darkPalette.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor(25,25,25))
+    darkPalette.setColor(QtGui.QPalette.ColorRole.AlternateBase, QtGui.QColor(53,53,53))
+    darkPalette.setColor(QtGui.QPalette.ColorRole.ToolTipBase, QtCore.Qt.GlobalColor.white)
+    darkPalette.setColor(QtGui.QPalette.ColorRole.ToolTipText, QtCore.Qt.GlobalColor.white)
+    darkPalette.setColor(QtGui.QPalette.ColorRole.Text, QtCore.Qt.GlobalColor.white)
+    darkPalette.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor(53,53,53))
+    darkPalette.setColor(QtGui.QPalette.ColorRole.ButtonText, QtCore.Qt.GlobalColor.white)
+    darkPalette.setColor(QtGui.QPalette.ColorRole.BrightText, QtCore.Qt.GlobalColor.red)
+    darkPalette.setColor(QtGui.QPalette.ColorRole.Link, QtGui.QColor(42, 130, 218))
+
+    darkPalette.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor(42, 130, 218))
+    darkPalette.setColor(QtGui.QPalette.ColorRole.HighlightedText, QtCore.Qt.GlobalColor.black)
+
+    # fix for disabled menu options
+    darkPalette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Text, QtGui.QColor(127,127,127))
+    darkPalette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Light, QtGui.QColor(53,53,53))
+
+    app.setPalette(darkPalette)
+
+    app.setStyleSheet("""
+        QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white }
+        #qt_toolbar_ext_button { background-color: #555; border: 1px solid #888; border-radius: 2px }
+        #qt_toolbar_ext_button::hover { background-color: #666 }
+    """)
+
+
 #############################################################################################
 ########################## Tileset Class and Tile/Object Subclasses #########################
 
@@ -3359,6 +3394,7 @@ class MainWindow(QtWidgets.QMainWindow):
         taskMenu = self.menuBar().addMenu("&Tasks")
         addAction(taskMenu, "Set Tileset Slot...", self.setSlot, QtGui.QKeySequence('Ctrl+T'))
         addAction(taskMenu, "Toggle Alpha", self.toggleAlpha, QtGui.QKeySequence('Ctrl+Shift+A'))
+        addAction(taskMenu, "Toggle Dark Mode", self.toggleDarkMode)
         addAction(taskMenu, "Clear Collision Data", self.clearCollisions, QtGui.QKeySequence('Ctrl+Shift+Backspace'))
         addAction(taskMenu, "Clear Object Data", self.clearObjects, QtGui.QKeySequence('Ctrl+Alt+Backspace'))
 
@@ -3402,6 +3438,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.alpha = True
 
         self.setuptile()
+
+
+    def toggleDarkMode(self):
+        global DarkMode
+        DarkMode = not DarkMode
+        settings.setValue('DarkMode', DarkMode)
+        QtWidgets.QMessageBox.information(None, 'Dark Mode', 'This change will take effect when you restart Puzzle.')
+
 
     def clearObjects(self):
         '''Clears the object data'''
@@ -3648,6 +3692,12 @@ if __name__ == '__main__':
 
     if '-clear-settings' in sys.argv:
         settings.clear()
+
+    # note: the str().lower() is for macOS, where bools in settings aren't automatically stringified
+    DarkMode = (str(settings.value('DarkMode', 'false')).lower() == 'true')
+
+    if DarkMode:
+        setUpDarkMode()
 
     # go to the script path
     path = module_path()
