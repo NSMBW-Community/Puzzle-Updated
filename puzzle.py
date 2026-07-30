@@ -305,7 +305,7 @@ class paletteWidget(QtWidgets.QWidget):
 
         # Terrain Type ComboBox
         self.terrainType = QtWidgets.QComboBox()
-        self.terrainLabel = QtWidgets.QLabel('Terrain Type')
+        self.terrainLabel = QtWidgets.QLabel('Terrain Type:')
 
         self.terrainTypes = [['Default', QtGui.QIcon(path + 'Core/Default.png')],
                         ['Ice', QtGui.QIcon(path + 'Terrain/Ice.png')],
@@ -319,7 +319,7 @@ class paletteWidget(QtWidgets.QWidget):
                         ['Ladder', QtGui.QIcon(path + 'Terrain/Ladder.png')],
                         ['Staircase', QtGui.QIcon(path + 'Terrain/Stairs.png')],
                         ['Carpet', QtGui.QIcon(path + 'Terrain/Carpet.png')],
-                        ['Dusty', QtGui.QIcon(path + 'Terrain/Dust.png')],
+                        ['Desert Sand', QtGui.QIcon(path + 'Terrain/Dust.png')],
                         ['Grass', QtGui.QIcon(path + 'Terrain/Grass.png')],
                         ['Muffled', QtGui.QIcon(path + 'Unknown.png')],
                         ['Beach Sand', QtGui.QIcon(path + 'Terrain/Sand.png')]]
@@ -353,8 +353,8 @@ class paletteWidget(QtWidgets.QWidget):
                                     'Does not allow Mario to slide.</li>'
                                     '<li><b>Carpet:</b><br>'
                                     'Will muffle footstep noises.</li>'
-                                    '<li><b>Dusty:</b><br>'
-                                    'Will emit puffs of dust.</li>'
+                                    '<li><b>Desert Sand:</b><br>'
+                                    "Will create dusty sand tufts around Mario's feet.</li>"
                                     '<li><b>Muffled:</b><br>'
                                     'Mostly muffles footstep noises.</li>'
                                     '<li><b>Grass:</b><br>'
