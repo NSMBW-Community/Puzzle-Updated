@@ -1271,6 +1271,7 @@ class tileOverlord(QtWidgets.QWidget):
 
         self.tilingMethod.activated.connect(self.setTiling)
 
+        self.enableButtons(False)
 
         # Layout
         layout = QtWidgets.QGridLayout()
@@ -1298,6 +1299,17 @@ class tileOverlord(QtWidgets.QWidget):
 
 
 
+    def enableButtons(self, enabled):
+        self.tiles.setVisible(enabled)
+        self.tilingMethod.setEnabled(enabled)
+
+        self.addRow.setEnabled(enabled)
+        self.removeRow.setEnabled(enabled)
+
+        self.addColumn.setEnabled(enabled)
+        self.removeColumn.setEnabled(enabled)
+
+
     def addObj(self):
         global Tileset
 
@@ -1314,6 +1326,7 @@ class tileOverlord(QtWidgets.QWidget):
         index = window.objectList.currentIndex()
         window.objectList.setCurrentIndex(index)
         self.setObject(index)
+        self.enableButtons(True)
 
         window.objectList.update()
         self.update()
@@ -1340,6 +1353,7 @@ class tileOverlord(QtWidgets.QWidget):
             window.objectList.setCurrentIndex(index)
             self.setObject(index)
 
+        self.enableButtons(len(Tileset.objects) != 0)
         window.objectList.update()
         self.update()
 
