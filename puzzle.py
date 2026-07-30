@@ -292,8 +292,11 @@ class paletteWidget(QtWidgets.QWidget):
         self.PassNone.setIconSize(QtCore.QSize(24, 24))
 
         self.PassThrough.setToolTip('Allows Mario to jump through the bottom\nof the tile and land on the top.')
-        self.PassDown.setToolTip("Allows Mario to fall through the tile but\nbe able to jump up through it. Doesn't seem to actually do anything, though?")
+        self.PassDown.setToolTip("Allows Mario to fall through the tile but\nbe able to jump up through it.")
         self.PassNone.setToolTip('Default setting')
+
+        # Select default pass behavior
+        self.PassNone.setChecked(True)
 
         propertyLayout.addWidget(self.PassNone)
         propertyLayout.addWidget(self.PassThrough)
@@ -580,6 +583,9 @@ class paletteWidget(QtWidgets.QWidget):
         layout.addWidget(self.parameters, 1, 1)
         self.setLayout(layout)
 
+        # Select default core type
+        self.coreWidgets[0].setChecked(True)
+        self.swapParams()
 
     def swapParams(self):
         for item in range(12):
