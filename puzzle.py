@@ -383,7 +383,7 @@ class paletteWidget(QtWidgets.QWidget):
                          ['Red Block Outline B', QtGui.QIcon(path + 'Generic/RedBlock.png')],
                          ['Cave Entrance Right', QtGui.QIcon(path + 'Generic/Cave-Right.png')],
                          ['Cave Entrance Left', QtGui.QIcon(path + 'Generic/Cave-Left.png')],
-                         ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
+                         ['Unknown 8', QtGui.QIcon(path + 'Unknown.png')],
                          ['Layer 0 Pit', QtGui.QIcon(path + 'Unknown.png')]]
 
         RailParams = [['None', QtGui.QIcon(path + 'Core/Default.png')],
@@ -393,7 +393,7 @@ class paletteWidget(QtWidgets.QWidget):
                       ['Rail: 90 degree Corner', QtGui.QIcon(path + '')],
                       ['Rail: Horizontal Rail', QtGui.QIcon(path + '')],
                       ['Rail: Vertical Rail', QtGui.QIcon(path + '')],
-                      ['Rail: Unknown', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Unknown 7', QtGui.QIcon(path + 'Unknown.png')],
                       ['Rail: Gentle Upslope 2', QtGui.QIcon(path + '')],
                       ['Rail: Gentle Upslope 1', QtGui.QIcon(path + '')],
                       ['Rail: Gentle Downslope 2', QtGui.QIcon(path + '')],
@@ -419,7 +419,7 @@ class paletteWidget(QtWidgets.QWidget):
                       ['Rail: 4x4 Circle Bottom Left', QtGui.QIcon(path + '')],
                       ['Rail: 4x4 Circle Bottom Right', QtGui.QIcon(path + '')],
                       ['Rail: 4x4 Circle Bottom Right Corner', QtGui.QIcon(path + '')],
-                      ['Rail: Unknown', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Unknown 33', QtGui.QIcon(path + 'Unknown.png')],
                       ['Rail: End Stop', QtGui.QIcon(path + '')]]
 
         ClimableGridParams = [['None', QtGui.QIcon(path + 'Core/Default.png')],
@@ -439,48 +439,48 @@ class paletteWidget(QtWidgets.QWidget):
                      ['Coin', QtGui.QIcon(path + 'Unknown.png')],
                      ['Nothing', QtGui.QIcon(path + 'Unknown.png')],
                      ['Coin', QtGui.QIcon(path + 'Unknown.png')],
-                     ['Pow Block Coin', QtGui.QIcon(path + 'Coin/POW.png')]]
+                     ['Blue P-Switch Coin', QtGui.QIcon(path + 'Coin/BlueCoin.png')]]
 
         ExplodableBlockParams = [['None', QtGui.QIcon(path + 'Core/Default.png')],
                                 ['Stone Block', QtGui.QIcon(path + 'Explode/Stone.png')],
                                 ['Wooden Block', QtGui.QIcon(path + 'Explode/Wooden.png')],
                                 ['Red Block', QtGui.QIcon(path + 'Explode/Red.png')],
-                                ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                                ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                                ['Unknown', QtGui.QIcon(path + 'Unknown.png')]]
+                                ['Unknown 4', QtGui.QIcon(path + 'Unknown.png')],
+                                ['Unknown 5', QtGui.QIcon(path + 'Unknown.png')],
+                                ['Unknown 6', QtGui.QIcon(path + 'Unknown.png')]]
 
-        PipeParams = [['Vert. Top Entrance Left', QtGui.QIcon(path + 'Pipes/')],
-                      ['Vert. Top Entrance Right', QtGui.QIcon(path + '')],
-                      ['Vert. Bottom Entrance Left', QtGui.QIcon(path + '')],
-                      ['Vert. Bottom Entrance Right', QtGui.QIcon(path + '')],
-                      ['Vert. Center Left', QtGui.QIcon(path + '')],
-                      ['Vert. Center Right', QtGui.QIcon(path + '')],
+        PipeParams = [['Vert. Top Entrance Left', QtGui.QIcon(path + 'Pipes/VertTopLeft.png')],
+                      ['Vert. Top Entrance Right', QtGui.QIcon(path + 'Pipes/VertTopRight.png')],
+                      ['Vert. Bottom Entrance Left', QtGui.QIcon(path + 'Pipes/VertBottomLeft.png')],
+                      ['Vert. Bottom Entrance Right', QtGui.QIcon(path + 'Pipes/VertBottomRight.png')],
+                      ['Vert. Center Left', QtGui.QIcon(path + 'Pipes/VertCenterLeft.png')],
+                      ['Vert. Center Right', QtGui.QIcon(path + 'Pipes/VertCenterRight.png')],
                       ['Vert. On Top Junction Left', QtGui.QIcon(path + '')],
                       ['Vert. On Top Junction Right', QtGui.QIcon(path + '')],
-                      ['Horiz. Left Entrance Top', QtGui.QIcon(path + '')],
-                      ['Horiz. Left Entrance Bottom', QtGui.QIcon(path + '')],
-                      ['Horiz. Right Entrance Top', QtGui.QIcon(path + '')],
-                      ['Horiz. Right Entrance Bottom', QtGui.QIcon(path + '')],
-                      ['Horiz. Center Top', QtGui.QIcon(path + '')],
-                      ['Horiz. Center Bottom', QtGui.QIcon(path + '')],
+                      ['Horiz. Left Entrance Top', QtGui.QIcon(path + 'Pipes/HorizLeftTop.png')],
+                      ['Horiz. Left Entrance Bottom', QtGui.QIcon(path + 'Pipes/HorizLeftBottom.png')],
+                      ['Horiz. Right Entrance Top', QtGui.QIcon(path + 'Pipes/HorizRightTop.png')],
+                      ['Horiz. Right Entrance Bottom', QtGui.QIcon(path + 'Pipes/HorizRightBottom.png')],
+                      ['Horiz. Center Top', QtGui.QIcon(path + 'Pipes/HorizCenterTop.png')],
+                      ['Horiz. Center Bottom', QtGui.QIcon(path + 'Pipes/HorizCenterBottom.png')],
                       ['Horiz. On Top Junction Top', QtGui.QIcon(path + '')],
                       ['Horiz. On Top Junction Bottom', QtGui.QIcon(path + '')],
-                      ['Vert. Mini Pipe Top', QtGui.QIcon(path + '')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Vert. Mini Pipe Bottom', QtGui.QIcon(path + '')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Vert. On Top Mini-Junction', QtGui.QIcon(path + '')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Horiz. Mini Pipe Left', QtGui.QIcon(path + '')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Horiz. Mini Pipe Right', QtGui.QIcon(path + '')],
-                      ['Unknown', QtGui.QIcon(path + 'Unknown.png')],
-                      ['Vert. Mini Pipe Center', QtGui.QIcon(path + '')],
-                      ['Horiz. Mini Pipe Center', QtGui.QIcon(path + '')],
-                      ['Horiz. On Top Mini-Junction', QtGui.QIcon(path + '')],
-                      ['Block Covered Corner', QtGui.QIcon(path + '')]]
+                      ['Vert. Mini Pipe Top', QtGui.QIcon(path + 'Pipes/VertMiniTop.png')],
+                      ['Unknown 17', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Vert. Mini Pipe Bottom', QtGui.QIcon(path + 'Pipes/VertMiniBottom.png')],
+                      ['Unknown 19', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Unknown 20', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Unknown 21', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Vert. On Top Mini-Junction', QtGui.QIcon(path + 'Pipes/VertMiniJunction.png')],
+                      ['Unknown 23', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Horiz. Mini Pipe Left', QtGui.QIcon(path + 'Pipes/HorizMiniLeft.png')],
+                      ['Unknown 25', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Horiz. Mini Pipe Right', QtGui.QIcon(path + 'Pipes/HorizMiniRight.png')],
+                      ['Unknown 27', QtGui.QIcon(path + 'Unknown.png')],
+                      ['Vert. Mini Pipe Center', QtGui.QIcon(path + 'Pipes/VertMiniCenter.png')],
+                      ['Horiz. Mini Pipe Center', QtGui.QIcon(path + 'Pipes/HorizMiniCenter.png')],
+                      ['Horiz. On Top Mini-Junction', QtGui.QIcon(path + 'Pipes/HorizMiniJunction.png')],
+                      ['Block Covered Corner', QtGui.QIcon(path + 'Pipes/BlockCorner.png')]]
 
         PartialBlockParams = [['None', QtGui.QIcon(path + 'Core/Default.png')],
                               ['Upper Left', QtGui.QIcon(path + 'Partial/UpLeft.png')],
@@ -551,15 +551,15 @@ class paletteWidget(QtWidgets.QWidget):
         ConveyorBeltParams = [['Slow', QtGui.QIcon(path + 'Unknown.png')],
                               ['Fast', QtGui.QIcon(path + 'Unknown.png')]]
 
-        QBlockParams = [['Fire Flower', QtGui.QIcon(path + 'Qblock/Fire.png')],
-                       ['Star', QtGui.QIcon(path + 'Qblock/Star.png')],
-                       ['Coin', QtGui.QIcon(path + 'Qblock/Coin.png')],
-                       ['Vine', QtGui.QIcon(path + 'Qblock/Vine.png')],
-                       ['1-Up', QtGui.QIcon(path + 'Qblock/1up.png')],
-                       ['Mini Mushroom', QtGui.QIcon(path + 'Qblock/Mini.png')],
-                       ['Propeller Suit', QtGui.QIcon(path + 'Qblock/Prop.png')],
-                       ['Penguin Suit', QtGui.QIcon(path + 'Qblock/Peng.png')],
-                       ['Ice Flower', QtGui.QIcon(path + 'Qblock/IceF.png')]]
+        QBlockParams = [['Fire Flower', QtGui.QIcon(path + 'QBlock/Fire.png')],
+                       ['Star', QtGui.QIcon(path + 'QBlock/Star.png')],
+                       ['Coin', QtGui.QIcon(path + 'QBlock/Coin.png')],
+                       ['Vine', QtGui.QIcon(path + 'QBlock/Vine.png')],
+                       ['1-Up', QtGui.QIcon(path + 'QBlock/1up.png')],
+                       ['Mini Mushroom', QtGui.QIcon(path + 'QBlock/Mini.png')],
+                       ['Propeller Suit', QtGui.QIcon(path + 'QBlock/Prop.png')],
+                       ['Penguin Suit', QtGui.QIcon(path + 'QBlock/Peng.png')],
+                       ['Ice Flower', QtGui.QIcon(path + 'QBlock/IceF.png')]]
 
 
         self.ParameterList = [GenericParams,
@@ -577,12 +577,10 @@ class paletteWidget(QtWidgets.QWidget):
 
 
         layout = QtWidgets.QGridLayout()
-        layout.addWidget(self.coreType, 0, 1, 1, 2)
+        layout.addWidget(self.coreType, 0, 1)
         layout.addWidget(self.propertyGroup, 0, 0, 3, 1)
-        layout.addWidget(self.terrainLabel, 2, 1)
-        layout.addWidget(self.terrainType, 2, 2)
-        layout.addWidget(self.parameterLabel, 1, 1)
-        layout.addWidget(self.parameters, 1, 2)
+        layout.addWidget(self.terrainType, 2, 1)
+        layout.addWidget(self.parameters, 1, 1)
         self.setLayout(layout)
 
         # Select default core type
@@ -648,7 +646,7 @@ class InfoBox(QtWidgets.QWidget):
         self.LabelB = QtWidgets.QLabel('Properties:')
         self.LabelB.setFont(Font)
 
-        self.hexdata = QtWidgets.QLabel('Hex Data: 0x00 0x00 0x00 0x00\n                0x00 0x00 0x00 0x00')
+        self.hexdata = QtWidgets.QLabel('Hex Data:\n0x00 0x00 0x00 0x00\n0x00 0x00 0x00 0x00')
         self.hexdata.setFont(Font)
 
 
@@ -1985,6 +1983,7 @@ class tileWidget(QtWidgets.QWidget):
 
             self.tileset = QtWidgets.QComboBox()
             self.tileset.addItems(['Pa0', 'Pa1', 'Pa2', 'Pa3'])
+            self.tileset.setMinimumWidth(48)
 
             self.tile = QtWidgets.QSpinBox()
             self.tile.setRange(0, 255)
@@ -3626,9 +3625,11 @@ class MainWindow(QtWidgets.QMainWindow):
         info.terrainInfo.setText(palette.terrainTypes[curTile.byte5][0])
         info.paramInfo.setText(parameter[0])
 
-        info.hexdata.setText('Hex Data: {0} {1} {2} {3}\n                {4} {5} {6} {7}'.format(
-                                hex(curTile.byte0), hex(curTile.byte1), hex(curTile.byte2), hex(curTile.byte3),
-                                hex(curTile.byte4), hex(curTile.byte5), hex(curTile.byte6), hex(curTile.byte7)))
+        # info.hexdata.setText('Hex Data:\n{0} {1} {2} {3}\n{4} {5} {6} {7}'.format(
+        #                         hex(curTile.byte0).zfill(2), hex(curTile.byte1).zfill(2), hex(curTile.byte2).zfill(2), hex(curTile.byte3).zfill(2),
+        #                         hex(curTile.byte4).zfill(2), hex(curTile.byte5).zfill(2), hex(curTile.byte6).zfill(2), hex(curTile.byte7).zfill(2)))
+
+        info.hexdata.setText(f'Hex Data:\n0x{curTile.byte0:02x} 0x{curTile.byte1:02x} 0x{curTile.byte2:02x} 0x{curTile.byte3:02x}\n0x{curTile.byte4:02x} 0x{curTile.byte5:02x} 0x{curTile.byte6:02x} 0x{curTile.byte7:02x}')
 
 
 
