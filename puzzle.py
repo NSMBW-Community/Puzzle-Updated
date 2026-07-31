@@ -371,7 +371,7 @@ class paletteWidget(QtWidgets.QWidget):
 
         # Parameters ComboBox
         self.parameters = QtWidgets.QComboBox()
-        self.parameterLabel = QtWidgets.QLabel('Parameters')
+        self.parameterLabel = QtWidgets.QLabel('Parameters:')
         self.parameters.addItem('None')
 
 
@@ -577,10 +577,12 @@ class paletteWidget(QtWidgets.QWidget):
 
 
         layout = QtWidgets.QGridLayout()
-        layout.addWidget(self.coreType, 0, 1)
+        layout.addWidget(self.coreType, 0, 1, 1, 2)
         layout.addWidget(self.propertyGroup, 0, 0, 3, 1)
-        layout.addWidget(self.terrainType, 2, 1)
-        layout.addWidget(self.parameters, 1, 1)
+        layout.addWidget(self.terrainLabel, 2, 1)
+        layout.addWidget(self.terrainType, 2, 2)
+        layout.addWidget(self.parameterLabel, 1, 1)
+        layout.addWidget(self.parameters, 1, 2)
         self.setLayout(layout)
 
         # Select default core type
