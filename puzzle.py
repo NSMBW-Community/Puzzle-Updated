@@ -214,17 +214,17 @@ class paletteWidget(QtWidgets.QWidget):
 
         path = 'Icons/'
 
-        self.coreTypes = [['Default', QtGui.QIcon(path + 'Core/Default.png'), 'The standard type for tiles.\n\nAny regular terrain or backgrounds\nshould be of generic type. It has no\n collision properties.'],
+        self.coreTypes = [['Default', QtGui.QIcon(path + 'Core/Default.png'), 'The standard type for tiles.\n\nAny regular terrain or backgrounds\nshould be of generic type. It has no\ncollision properties.'],
                      ['Slope', QtGui.QIcon(path + 'Core/Slope.png'), 'Defines a sloped tile\n\nSloped tiles have sloped collisions,\nwhich Mario can slide on.\n\nNote: Do NOT set slopes to have solid collision.'],
                      ['Reverse Slope', QtGui.QIcon(path + 'Core/RSlope.png'), 'Defines an upside-down slope.\n\nSloped tiles have sloped collisions,\nwhich Mario can slide on.\n\nNote: Do NOT set slopes to have solid collision.'],
                      ['Partial Block', QtGui.QIcon(path + 'Partial/Full.png'), 'Used for blocks with partial collisions.\n\nVery useful for Mini-Mario secret\nareas, but also for providing a more\naccurate collision map for your tiles.'],
-                     ['Coin', QtGui.QIcon(path + 'Core/Coin.png'), 'Creates a coin.\n\nCoins have no solid collision,\nand when touched will disappear\nand increment the coin counter.'],
-                     ['Explodable Block', QtGui.QIcon(path + 'Core/Explode.png'), 'Specifies blocks which can explode.\n\nThese blocks will shatter into componenent\npieces when hit by a bom-omb or meteor.\nThe pieces themselves may be hardcoded\nand must be included in the tileset.\nBehaviour may be sporadic.'],
+                     ['Coin', QtGui.QIcon(path + 'Core/Coin.png'), 'Creates a coin.\n\nCoins have no solid collision,\nand when touched will disappear\nand increment the coin counter.\n\nNote: This does NOT render a coin at the tile position.'],
+                     ['Explodable Block', QtGui.QIcon(path + 'Core/Explode.png'), 'Specifies blocks which can explode.\n\nThese blocks will shatter into smaller\npieces when hit by a Bob-Omb, Broozer, meteor, etc.\nThe pieces themselves may be hardcoded\nand must be included in the tileset.\nBehaviour may be sporadic.'],
                      ['Climable Grid', QtGui.QIcon(path + 'Core/Climb.png'), 'Creates terrain that can be climbed on.\n\nClimable terrain cannot be walked on.\nWhen Mario is overtop of a climable\ntile and the player presses up,\nMario will enter a climbing state.'],
                      ['Spike', QtGui.QIcon(path + 'Core/Spike.png'), 'Dangerous Spikey spikes.\n\nSpike tiles will damage Mario one hit\nwhen they are touched.'],
                      ['Pipe', QtGui.QIcon(path + 'Core/Pipe.png'), "Denotes a pipe tile.\n\nPipe tiles are specified according to\nthe part of the pipe. It's important\nto specify the right parts or\nentrances will not function correctly."],
                      ['Rails', QtGui.QIcon(path + 'Core/Rails.png'), 'Used for all types of rails.\n\nPlease note that Pa3_rail.arc is hardcoded\nto replace rails with 3D models.'],
-                     ['Conveyor Belt', QtGui.QIcon(path + 'Core/Conveyor.png'), 'Defines moving tiles.\n\nMoving tiles will move Mario in one\ndirection or another. Parameters are\nlargely unknown at this time.'],
+                     ['Conveyor Belt', QtGui.QIcon(path + 'Core/Conveyor.png'), 'Defines moving tiles.\n\nMoving tiles will move Mario in the\ndirection specified by the terrain type.'],
                      ['Question Block', QtGui.QIcon(path + 'Core/Qblock.png'), 'Creates question blocks.']]
 
         i = 0
@@ -265,11 +265,12 @@ class paletteWidget(QtWidgets.QWidget):
         self.propertyGroup.setTitle('Properties:')
         propertyLayout = QtWidgets.QVBoxLayout()
         self.propertyWidgets = []
-        propertyList = [['Solid', QtGui.QIcon(path + 'Prop/Solid.png'), 'Tiles you can walk on.\n\nThe tiles we be a solid basic square\nthrough which Mario can not pass.'],
+        propertyList = [['Solid', QtGui.QIcon(path + 'Prop/Solid.png'), 'Tiles you can walk on.\n\nThe tiles will be a solid basic square\nthrough which Mario can not pass.'],
                         ['Block', QtGui.QIcon(path + 'Prop/Break.png'), 'This denotes breakable tiles such\nas brick blocks. It is likely that these\nare subject to the same issues as\nexplodable blocks. They emit a coin\nwhen hit.'],
                         ['Falling Block', QtGui.QIcon(path + 'Prop/Fall.png'), 'Sets the block to fall after a set period. The\nblock is sadly replaced with a donut lift model.'],
                         ['Ledge', QtGui.QIcon(path + 'Prop/Ledge.png'), 'A ledge tile with unique properties.\n\nLedges can be shimmied along or\nhung from, but not walked along\nas with normal terrain. Must have the\nledge terrain type set as well.'],
-                        ['Meltable', QtGui.QIcon(path + 'Prop/Melt.png'), 'Supposedly allows melting the tile?']]
+                        ['Unknown', QtGui.QIcon(path + 'Unknown.png'), 'Formerly known as "Meltable".'],
+                        ['Invisible Block', QtGui.QIcon(path + 'Prop/Invisible.png'), 'This denotes invisible blocks.\n\nIt is only an indicator that the tile may\nnot be valid terrain until hit, and is not\nrequired for invisible blocks to work.']]
 
         for item in range(len(propertyList)):
             self.propertyWidgets.append(QtWidgets.QCheckBox(propertyList[item][0]))
@@ -292,7 +293,7 @@ class paletteWidget(QtWidgets.QWidget):
         self.PassNone.setIconSize(QtCore.QSize(24, 24))
 
         self.PassThrough.setToolTip('Allows Mario to jump through the bottom\nof the tile and land on the top.')
-        self.PassDown.setToolTip("Allows Mario to fall through the tile but\nbe able to jump up through it.")
+        self.PassDown.setToolTip("Allows Mario to fall through the tile but\nbe unable to jump up through it.")
         self.PassNone.setToolTip('Default setting')
 
         # Select default pass behavior
@@ -314,12 +315,12 @@ class paletteWidget(QtWidgets.QWidget):
                         ['Ice', QtGui.QIcon(path + 'Terrain/Ice.png')],
                         ['Snow', QtGui.QIcon(path + 'Terrain/Snow.png')],
                         ['Quicksand', QtGui.QIcon(path + 'Terrain/Quicksand.png')],
-                        ['Conveyor Belt Right', QtGui.QIcon(path + 'Core/Conveyor.png')],
-                        ['Conveyor Belt Left', QtGui.QIcon(path + 'Core/Conveyor.png')],
+                        ['Conveyor Belt Right', QtGui.QIcon(path + 'Terrain/ConveyorRight.png')],
+                        ['Conveyor Belt Left', QtGui.QIcon(path + 'Terrain/ConveyorLeft.png')],
                         ['Horiz. Climbing Rope', QtGui.QIcon(path + 'Terrain/Rope.png')],
-                        ['Anti Wall Jumps', QtGui.QIcon(path + 'Terrain/Spike.png')],
+                        ['Anti Wall Jumps', QtGui.QIcon(path + 'Unknown.png')],
                         ['Ledge', QtGui.QIcon(path + 'Terrain/Ledge.png')],
-                        ['Ladder', QtGui.QIcon(path + 'Terrain/Ladder.png')],
+                        ['Pole', QtGui.QIcon(path + 'Terrain/Pole.png')],
                         ['Staircase', QtGui.QIcon(path + 'Terrain/Stairs.png')],
                         ['Carpet', QtGui.QIcon(path + 'Terrain/Carpet.png')],
                         ['Desert Sand', QtGui.QIcon(path + 'Terrain/Dust.png')],
@@ -350,8 +351,8 @@ class paletteWidget(QtWidgets.QWidget):
                                     'Mario cannot wall-jump off of the tile.</li>'
                                     '<li><b>Ledge:</b><br>'
                                     'Must have ledge property set as well.</li>'
-                                    '<li><b>Ladder:</b><br>'
-                                    'Acts as a pole. Mario will face right or left as he climbs.</li>'
+                                    '<li><b>Pole:</b><br>'
+                                    'Mario will face right or left as he climbs.</li>'
                                     '<li><b>Staircase:</b><br>'
                                     'Does not allow Mario to slide.</li>'
                                     '<li><b>Carpet:</b><br>'
@@ -384,7 +385,7 @@ class paletteWidget(QtWidgets.QWidget):
                          ['Cave Entrance Right', QtGui.QIcon(path + 'Generic/Cave-Right.png')],
                          ['Cave Entrance Left', QtGui.QIcon(path + 'Generic/Cave-Left.png')],
                          ['Unknown 8', QtGui.QIcon(path + 'Unknown.png')],
-                         ['Layer 0 Pit', QtGui.QIcon(path + 'Unknown.png')]]
+                         ['Layer 0 Pit', QtGui.QIcon(path + 'Generic/PitLayer0.png')]]
 
         RailParams = [['None', QtGui.QIcon(path + 'Core/Default.png')],
                       ['Rail: Upslope', QtGui.QIcon(path + '')],
@@ -436,18 +437,18 @@ class paletteWidget(QtWidgets.QWidget):
 
 
         CoinParams = [['Generic Coin', QtGui.QIcon(path + 'QBlock/Coin.png')],
-                     ['Coin', QtGui.QIcon(path + 'Unknown.png')],
+                     ['Coin (1)', QtGui.QIcon(path + 'Unknown.png')],
                      ['Nothing', QtGui.QIcon(path + 'Unknown.png')],
-                     ['Coin', QtGui.QIcon(path + 'Unknown.png')],
-                     ['Blue P-Switch Coin', QtGui.QIcon(path + 'Coin/BlueCoin.png')]]
+                     ['Coin (3)', QtGui.QIcon(path + 'Unknown.png')],
+                     ['Blue Coin', QtGui.QIcon(path + 'Coin/BlueCoin.png')]]
 
-        ExplodableBlockParams = [['None', QtGui.QIcon(path + 'Core/Default.png')],
+        ExplodableBlockParams = [['Empty Block', QtGui.QIcon(path + 'Explode/Block.png')],
                                 ['Stone Block', QtGui.QIcon(path + 'Explode/Stone.png')],
-                                ['Wooden Block', QtGui.QIcon(path + 'Explode/Wooden.png')],
+                                ['Wooden Block', QtGui.QIcon(path + 'Explode/Wood.png')],
                                 ['Red Block', QtGui.QIcon(path + 'Explode/Red.png')],
-                                ['Unknown 4', QtGui.QIcon(path + 'Unknown.png')],
-                                ['Unknown 5', QtGui.QIcon(path + 'Unknown.png')],
-                                ['Unknown 6', QtGui.QIcon(path + 'Unknown.png')]]
+                                ['Red Block (2)', QtGui.QIcon(path + 'Explode/Red.png')],
+                                ['Brick Block', QtGui.QIcon(path + 'Explode/Brick.png')],
+                                ['Brick Block (2)', QtGui.QIcon(path + 'Explode/Brick.png')]]
 
         PipeParams = [['Vert. Top Entrance Left', QtGui.QIcon(path + 'Pipes/VertTopLeft.png')],
                       ['Vert. Top Entrance Right', QtGui.QIcon(path + 'Pipes/VertTopRight.png')],
@@ -488,7 +489,7 @@ class paletteWidget(QtWidgets.QWidget):
                               ['Top Half', QtGui.QIcon(path + 'Partial/TopHalf.png')],
                               ['Lower Left', QtGui.QIcon(path + 'Partial/LowLeft.png')],
                               ['Left Half', QtGui.QIcon(path + 'Partial/LeftHalf.png')],
-                              ['Diagonal Downwards', QtGui.QIcon(path + 'Partial/DiagDn.png')],
+                              ['Diagonal Upwards', QtGui.QIcon(path + 'Partial/DiagUp.png')],
                               ['Upper Left 3/4', QtGui.QIcon(path + 'Partial/UpLeft3-4.png')],
                               ['Lower Right', QtGui.QIcon(path + 'Partial/LowRight.png')],
                               ['Diagonal Downwards', QtGui.QIcon(path + 'Partial/DiagDn.png')],
@@ -548,8 +549,8 @@ class paletteWidget(QtWidgets.QWidget):
                        ['Single Downwards Spike', QtGui.QIcon(path + 'Spike/SingDown.png')],
                        ['Spike Block', QtGui.QIcon(path + 'Unknown.png')]]
 
-        ConveyorBeltParams = [['Slow', QtGui.QIcon(path + 'Unknown.png')],
-                              ['Fast', QtGui.QIcon(path + 'Unknown.png')]]
+        ConveyorBeltParams = [['Slow', QtGui.QIcon(path + '')],
+                              ['Fast', QtGui.QIcon(path + '')]]
 
         QBlockParams = [['Fire Flower', QtGui.QIcon(path + 'QBlock/Fire.png')],
                        ['Star', QtGui.QIcon(path + 'QBlock/Star.png')],
@@ -575,6 +576,43 @@ class paletteWidget(QtWidgets.QWidget):
                               ConveyorBeltParams,
                               QBlockParams]
 
+        self.ParameterTips = [
+            'Default Parameters:'
+            '<ul>'
+            '<li><b>Default:</b><br>No Parameters.</li>'
+            '<li><b>Beanstalk Stop:</b><br>Stops growing vines that collide with this tile.</li>'
+            '<li><b>Dash Coin:</b><br>Outlines that turn into coins when players touch them.</li>'
+            '<li><b>Battle Coin:</b><br>Similar to <i>Dash Coin</i>, but they only appear in Coin Battle mode.</li>'
+            '<li><b>Red Block Outline A:</b><br>Blocks that become solid when hitting a ! Switch. Does not work with the World 3 switch, and does not visually change into red block tiles.</li>'
+            '<li><b>Red Block Outline B:</b><br>Same as above, unknown if there are any differences.</li>'
+            '<li><b>Cave Entrance Right/Left:</b><br>Defines Layer 0 cave entrances.</li>'
+            '<li><b>Unknown 8:</b><br>Unknown type with unknown behavior.</li>'
+            '<li><b>Layer 0 Pit:</b><br>Defines Layer 0 pits (cave entrances).</li>'
+            '</ul>',
+
+            None, # Slope
+            None, # Reverse Slope
+            None, # Partial Blocks
+
+            'Coin Parameters:'
+            '<ul>'
+            '<li><b>Generic Coin:</b><br>Normal coin that can be collected, turns into ? Blocks if a P-Switch is hit.</li>'
+            '<li><b>Coin (1):</b><br>Acts like a coin, but does not turn into a ? Block when a P-Switch is active.</li>'
+            '<li><b>Unknown:</b><br>Would act like a coin, however the game code skips all coin behavior for this type.</li>'
+            '<li><b>Coin (3):</b><br>Acts the same as <i>Coin (1)</i>. Unknown if it behaves any differently.</li>'
+            '<li><b>Blue Coin:</b><br>A blue coin that can be collected, regardless of the P-Switch being activated or not.</li>'
+            '</ul>',
+
+            None, # Explodable Blocks
+            None, # Climbable Grids
+            None, # Spikes
+            None, # Pipes
+            None, # Rails
+            None, # Conveyors
+
+            'Setting the parameter might not work, so set the item type by right-clicking any objects using this tile!',
+        ]
+
 
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.coreType, 0, 1)
@@ -591,6 +629,7 @@ class paletteWidget(QtWidgets.QWidget):
         for item in range(12):
             if self.coreWidgets[item].isChecked():
                 self.parameters.clear()
+                self.parameters.setToolTip(self.ParameterTips[item])
                 for option in self.ParameterList[item]:
                     self.parameters.addItem(option[1], option[0])
 
@@ -830,7 +869,7 @@ class displayWidget(QtWidgets.QListView):
                     colour = QtGui.QColor(128,0,255, 120)
                 elif curTile.byte5 == 8:    # Ledge
                     colour = QtGui.QColor(128,0,255, 120)
-                elif curTile.byte5 == 9:    # Ladder
+                elif curTile.byte5 == 9:    # Pole
                     colour = QtGui.QColor(128,0,255, 120)
                 elif curTile.byte5 == 10:    # Staircase
                     colour = QtGui.QColor(255, 0, 0, 120)
@@ -1051,12 +1090,12 @@ class displayWidget(QtWidgets.QListView):
                                                             QtCore.QPoint(x + 24, y + 24),
                                                             QtCore.QPoint(x + 12, y + 24)]))
                     elif curTile.byte7 == 9:
-                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x + 24, y),
-                                                            QtCore.QPoint(x + 24, y + 12),
-                                                            QtCore.QPoint(x, y + 12),
-                                                            QtCore.QPoint(x, y + 24),
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
+                                                            QtCore.QPoint(x + 12, y),
                                                             QtCore.QPoint(x + 12, y + 24),
-                                                            QtCore.QPoint(x + 12, y)]))
+                                                            QtCore.QPoint(x + 24, y + 24),
+                                                            QtCore.QPoint(x + 24, y + 12),
+                                                            QtCore.QPoint(x, y + 12)]))
                     elif curTile.byte7 == 10:
                         painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x + 12, y),
                                                             QtCore.QPoint(x + 24, y),
@@ -1165,19 +1204,42 @@ class displayWidget(QtWidgets.QListView):
                                                             QtCore.QPoint(x + 24, y),
                                                             QtCore.QPoint(x + 12, y + 24)]))
 
+                    if curTile.byte7 == 7:
+                        painter.drawRect(x + 7, y + 7, 10, 10)
+
+                        spikes = [
+                            [QtCore.QPoint(x, y), QtCore.QPoint(x + 10, y + 6), QtCore.QPoint(x + 6, y + 10)],     # Top left
+                            [QtCore.QPoint(x + 24, y), QtCore.QPoint(x + 14, y + 6), QtCore.QPoint(x + 18, y + 10)],   # Top right
+                            [QtCore.QPoint(x, y + 24), QtCore.QPoint(x + 10, y + 18), QtCore.QPoint(x + 6, y + 14)],   # Bottom left
+                            [QtCore.QPoint(x + 24, y + 24), QtCore.QPoint(x + 14, y + 18), QtCore.QPoint(x + 18, y + 14)], # Bottom right
+                            [QtCore.QPoint(x + 12, y - 1), QtCore.QPoint(x + 8, y + 8), QtCore.QPoint(x + 16, y + 8)],    # Top
+                            [QtCore.QPoint(x + 12, y + 25), QtCore.QPoint(x + 8, y + 16), QtCore.QPoint(x + 16, y + 16)],  # Bottom
+                            [QtCore.QPoint(x - 1,  y + 12), QtCore.QPoint(x + 8, y + 8), QtCore.QPoint(x + 8, y + 16)],    # Left
+                            [QtCore.QPoint(x + 25, y + 12), QtCore.QPoint(x + 16, y + 8), QtCore.QPoint(x + 16, y + 16)],  # Right
+                        ]
+
+                        for spike in spikes:
+                            painter.drawPolygon(QtGui.QPolygon(spike))
+
                 elif curTile.byte3 & 2: # Coin
                     if curTile.byte7 == 0:
                         painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Coin/Coin.png'))
                     if curTile.byte7 == 4:
-                        painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Coin/POW.png'))
+                        painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Coin/BlueCoin.png'))
 
                 elif curTile.byte3 & 8: # Exploder
-                    if curTile.byte7 == 1:
-                        painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Explode/Stone.png'))
-                    if curTile.byte7 == 2:
-                        painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Explode/Wood.png'))
-                    if curTile.byte7 == 3:
-                        painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Explode/Red.png'))
+                    names = [
+                        'Explode/Block.png',
+                        'Explode/Stone.png',
+                        'Explode/Wood.png',
+                        'Explode/Red.png',
+                        'Explode/Red.png',
+                        'Explode/Brick.png',
+                        'Explode/Brick.png'
+                    ]
+
+                    if curTile.byte7 <= 6:
+                        painter.drawPixmap(option.rect, QtGui.QPixmap(path + names[curTile.byte7]))
 
                 elif curTile.byte1 & 2: # Falling
                     painter.drawPixmap(option.rect, QtGui.QPixmap(path + 'Prop/Fall.png'))
@@ -1361,6 +1423,7 @@ class tileOverlord(QtWidgets.QWidget):
     def setObject(self, index):
         global Tileset
         object = Tileset.objects[index.row()]
+        self.enableButtons(True)
 
         width = len(object.tiles[0])-1
         height = len(object.tiles)-1
@@ -1874,7 +1937,7 @@ class tileWidget(QtWidgets.QWidget):
     def mousePressEvent(self, event):
         global Tileset
 
-        if event.button() == 2:
+        if event.button() != Qt.MouseButton.LeftButton:
             return
 
         if window.tileDisplay.selectedIndexes() == []:
@@ -3586,6 +3649,8 @@ class MainWindow(QtWidgets.QMainWindow):
             propertyList.append('Pass-Through')
         if curTile.byte2 & 64:
             propertyList.append('Pass-Down')
+        if curTile.byte2 & 32:
+            propertyList.append('Invisible')
         if curTile.byte1 & 2:
             propertyList.append('Falling')
         if curTile.byte1 & 8:
@@ -3656,6 +3721,7 @@ class MainWindow(QtWidgets.QMainWindow):
         curTile.byte2 = ((palette.coreWidgets[6].isChecked() << 2) +
                         (palette.coreWidgets[3].isChecked() << 3) +
                         (palette.coreWidgets[7].isChecked() << 4) +
+                        (palette.propertyWidgets[5].isChecked() << 5) +
                         (palette.PassDown.isChecked() << 6) +
                         (palette.PassThrough.isChecked() << 7))
         curTile.byte3 = ((solid) +
