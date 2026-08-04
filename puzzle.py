@@ -669,7 +669,7 @@ class InfoBox(QtWidgets.QWidget):
 
 
         self.coreInfo = QtWidgets.QLabel()
-        self.propertyInfo = QtWidgets.QLabel('             \n\n\n\n\n')
+        self.propertyInfo = QtWidgets.QLabel('None')
         self.terrainInfo = QtWidgets.QLabel()
         self.paramInfo = QtWidgets.QLabel()
 
@@ -798,8 +798,8 @@ class displayWidget(QtWidgets.QListView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setMinimumWidth(424)
-        self.setMaximumWidth(424)
+        self.setMinimumWidth(405)
+        self.setMaximumWidth(405)
         self.setMinimumHeight(404)
         self.setDragEnabled(True)
         self.setViewMode(QtWidgets.QListView.ViewMode.IconMode)
@@ -3656,7 +3656,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if curTile.byte1 & 8:
             propertyList.append('Ledge')
         if curTile.byte0 & 2:
-            propertyList.append('Meltable')
+            propertyList.append('Unknown')
 
 
         if len(propertyList) == 0:
@@ -3689,10 +3689,6 @@ class MainWindow(QtWidgets.QMainWindow):
         info.propertyInfo.setText(propertyText)
         info.terrainInfo.setText(palette.terrainTypes[curTile.byte5][0])
         info.paramInfo.setText(parameter[0])
-
-        # info.hexdata.setText('Hex Data:\n{0} {1} {2} {3}\n{4} {5} {6} {7}'.format(
-        #                         hex(curTile.byte0).zfill(2), hex(curTile.byte1).zfill(2), hex(curTile.byte2).zfill(2), hex(curTile.byte3).zfill(2),
-        #                         hex(curTile.byte4).zfill(2), hex(curTile.byte5).zfill(2), hex(curTile.byte6).zfill(2), hex(curTile.byte7).zfill(2)))
 
         info.hexdata.setText(f'Hex Data:\n0x{curTile.byte0:02x} 0x{curTile.byte1:02x} 0x{curTile.byte2:02x} 0x{curTile.byte3:02x}\n0x{curTile.byte4:02x} 0x{curTile.byte5:02x} 0x{curTile.byte6:02x} 0x{curTile.byte7:02x}')
 
