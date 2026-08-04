@@ -269,8 +269,9 @@ class paletteWidget(QtWidgets.QWidget):
                         ['Block', QtGui.QIcon(path + 'Prop/Break.png'), 'This denotes breakable tiles such\nas brick blocks. It is likely that these\nare subject to the same issues as\nexplodable blocks. They emit a coin\nwhen hit.'],
                         ['Falling Block', QtGui.QIcon(path + 'Prop/Fall.png'), 'Sets the block to fall after a set period. The\nblock is sadly replaced with a donut lift model.'],
                         ['Ledge', QtGui.QIcon(path + 'Prop/Ledge.png'), 'A ledge tile with unique properties.\n\nLedges can be shimmied along or\nhung from, but not walked along\nas with normal terrain. Must have the\nledge terrain type set as well.'],
-                        ['Unknown', QtGui.QIcon(path + 'Unknown.png'), 'Formerly known as "Meltable".'],
-                        ['Invisible Block', QtGui.QIcon(path + 'Prop/Invisible.png'), 'This denotes invisible blocks.\n\nIt is only an indicator that the tile may\nnot be valid terrain until hit, and is not\nrequired for invisible blocks to work.']]
+                        ['Unknown (Byte 0 && 0x2)', QtGui.QIcon(path + 'Unknown.png'), 'Formerly known as "Meltable".'],
+                        ['Invisible Block', QtGui.QIcon(path + 'Prop/Invisible.png'), 'This denotes invisible blocks.\n\nIt is only an indicator that the tile may\nnot be valid terrain until hit, and is not\nrequired for invisible blocks to work.'],
+                        ['Unknown (Byte 1 && 0x10)', QtGui.QIcon(path + 'Unknown.png'), 'Used in 07-21 Area 3 Zone 2.\n\nActs normal from sides and below,\nbut has strange slope-like collision\non the top.']]
 
         for item in range(len(propertyList)):
             self.propertyWidgets.append(QtWidgets.QCheckBox(propertyList[item][0]))
@@ -3692,7 +3693,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if curTile.byte1 & 8:
             propertyList.append('Ledge')
         if curTile.byte0 & 2:
-            propertyList.append('Unknown')
+            propertyList.append('Unknown (Byte 0 & 0x2)')
+        if curTile.byte1 & 16:
+            propertyList.append('Unknown (Byte 1 & 0x10)')
 
 
         if len(propertyList) == 0:
@@ -3749,7 +3752,8 @@ class MainWindow(QtWidgets.QMainWindow):
         curTile.byte0 = ((palette.propertyWidgets[4].isChecked() << 1))
         curTile.byte1 = ((palette.coreWidgets[8].isChecked()) +
                         (palette.propertyWidgets[2].isChecked() << 1) +
-                        (palette.propertyWidgets[3].isChecked() << 3))
+                        (palette.propertyWidgets[3].isChecked() << 3) +
+                        (palette.propertyWidgets[6].isChecked() << 4))
         curTile.byte2 = ((palette.coreWidgets[6].isChecked() << 2) +
                         (palette.coreWidgets[3].isChecked() << 3) +
                         (palette.coreWidgets[7].isChecked() << 4) +
