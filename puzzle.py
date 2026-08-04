@@ -929,6 +929,24 @@ class displayWidget(QtWidgets.QListView):
                         painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y + 12),
                                                             QtCore.QPoint(x + 24, y + 24),
                                                             QtCore.QPoint(x, y + 24)]))
+                    elif curTile.byte7 == 6:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y + 24),
+                                                            QtCore.QPoint(x + 12, y),
+                                                            QtCore.QPoint(x + 24, y),
+                                                            QtCore.QPoint(x + 24, y + 24)]))
+                    elif curTile.byte7 == 7:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x + 12, y + 24),
+                                                            QtCore.QPoint(x + 24, y),
+                                                            QtCore.QPoint(x + 24, y + 24)]))
+                    elif curTile.byte7 == 8:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
+                                                            QtCore.QPoint(x + 12, y),
+                                                            QtCore.QPoint(x + 24, y + 24),
+                                                            QtCore.QPoint(x, y + 24)]))
+                    elif curTile.byte7 == 9:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
+                                                            QtCore.QPoint(x, y + 24),
+                                                            QtCore.QPoint(x + 12, y + 24)]))
                     elif curTile.byte7 == 10:
                         painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
                                                             QtCore.QPoint(x, y + 24),
@@ -1000,6 +1018,24 @@ class displayWidget(QtWidgets.QListView):
                         painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y + 12),
                                                             QtCore.QPoint(x, y),
                                                             QtCore.QPoint(x + 24, y)]))
+                    elif curTile.byte7 == 6:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
+                                                            QtCore.QPoint(x + 24, y),
+                                                            QtCore.QPoint(x + 24, y + 24),
+                                                            QtCore.QPoint(x + 12, y + 24)]))
+                    elif curTile.byte7 == 7:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x + 12, y),
+                                                            QtCore.QPoint(x + 24, y),
+                                                            QtCore.QPoint(x + 24, y + 24)]))
+                    elif curTile.byte7 == 8:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
+                                                            QtCore.QPoint(x + 24, y),
+                                                            QtCore.QPoint(x + 12, y + 24),
+                                                            QtCore.QPoint(x, y + 24)]))
+                    elif curTile.byte7 == 9:
+                        painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
+                                                            QtCore.QPoint(x + 12, y),
+                                                            QtCore.QPoint(x, y + 24)]))
                     elif curTile.byte7 == 10:
                         painter.drawPolygon(QtGui.QPolygon([QtCore.QPoint(x, y),
                                                             QtCore.QPoint(x, y + 24),
